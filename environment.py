@@ -3,9 +3,12 @@
 #Environment Class
 
 import math
+import random
+from obstacle import Obstacle
 from population import Population
 from cat import Cat
-
+from board import W
+from board import H
 
 class Environment:
     def __init__(self):
@@ -13,17 +16,7 @@ class Environment:
         self.population.generate()
         self.population.bowChickaWowWow(0, 1, 4)
         self.cat = Cat()
-
-
-    def targetMouse(self): #still needs to factor in smell type and strength and ignore out of sight mice
-        target = [-1, 1000000]
-        for mouse in self.population.getMice():
-            distance = self.distance(self.cat.getCoords(), mouse.getCoords())
-            distance = self.adjustDistForSmell(distance, mouse)
-            if  distance < target[1]:
-                target[0] = mouse
-                target[1] = distance
-        return target[0]
+        self.obstacles = [[Obstacle(W/10, [W-(W/3), H/4], [Obstacle(W/15, [W/3, H/3]]
 
     def getStringBin(self, stringBin):
         num = 0
@@ -57,16 +50,35 @@ class Environment:
         x  = "dummy"
         #catOrMouse.setCoords(catOrMouse.getCoords())
 
-    def getFleePath(self, mouse, cat):
+    #Mouse Move Utility Functions
+    def getFleePath(self, mouse):
         #find the most direct route to the closest real safe zone
         return "dummy coord"
+
+    def mapSafeZones(self):
+        return "dummy list of coords"
 
     def findNearestSafeZone(self, mouse):
         return "dummy coord"
 
     def takeTunnel(self, mouse):
-        return "dummy bool"
+        if mouse.getSize().self.getStringBin() == 0:
+            takeTun = random.choice([True, True, False])
+            return takeTun
+        else:
+            return False
 
+    #distance at which mouse will allow cat to get before fleeing affected by catFear
     def flee(self, mouse, cat):
         return "dummy coord"
 
+    #Cat move utility function
+    def targetMouse(self): #still needs to factor in smell type and strength and ignore out of sight mice
+        target = [-1, 1000000]
+        for mouse in self.population.getMice():
+            distance = self.distance(self.cat.getCoords(), mouse.getCoords())
+            distance = self.adjustDistForSmell(distance, mouse)
+            if  distance < target[1]:
+                target[0] = mouse
+                target[1] = distance
+        return target[0]
