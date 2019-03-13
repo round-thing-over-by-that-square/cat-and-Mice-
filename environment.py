@@ -47,8 +47,26 @@ class Environment:
     def eatMouse(self, mouse):
         self.population.getMice().remove(mouse)
 
-    # Many heuristics factor into move direction
+    # Heuristics that factor into move direction:
     # -needState: 1-3 go towards, 4 go away from
-    # -
+    # -preferenceForConfinedSpaces, increased probablility of taking confined route, if small enough to fit
+    # -make short runs to safe zones
+    # -when fleeing, only run to real safe zones
+    # -if obstacle in the way of real safe zone, recaluclate to the route around it to closest real path  
     def move(self, catOrMouse, direction, speed):
-        catOrMouse.setCoords(catOrMouse.getCoords())
+        x  = "dummy"
+        #catOrMouse.setCoords(catOrMouse.getCoords())
+
+    def getFleePath(self, mouse, cat):
+        #find the most direct route to the closest real safe zone
+        return "dummy coord"
+
+    def findNearestSafeZone(self, mouse):
+        return "dummy coord"
+
+    def takeTunnel(self, mouse):
+        return "dummy bool"
+
+    def flee(self, mouse, cat):
+        return "dummy coord"
+
