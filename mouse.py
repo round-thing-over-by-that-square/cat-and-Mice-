@@ -53,7 +53,8 @@ class Mouse:
     def catFear(self):
         return self.chromosome[12:14]
 
-   # def draw(self):
+    def draw(self):
+        arcade.draw_circle_filled(self.coords[0], self.coords[1], float(int(W/100)), arcade.color.LIGHT_BROWN)  
 
         
 

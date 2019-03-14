@@ -31,12 +31,17 @@ class MyGame(arcade.Window):
 
         arcade.set_background_color(arcade.color.LIGHT_GRAY) 
         self.board = Board() # an 8x8 board
+        self.environment = Environment()
         
    
    
     def on_draw(self):
         arcade.start_render()
         self.board.draw()
+        self.environment.draw()
+        safeZone = self.environment.mapSafeZones(self.environment.getObstacles()[0], self.environment.getCat()) #debugging
+        x = "debug pt" ###############################
+
         
     
 ## end myGame class
@@ -45,9 +50,10 @@ def main():
    # f = open("data.txt", "w+")
     #f.write("") 
     window = MyGame(WINDOW_WIDTH, WINDOW_HEIGHT, TITLE)
-    environment = Environment()
-    target = environment.targetMouse()
-    environment.eatMouse(environment.population.getMice()[0]) #####testing eatMouse()
+   # environment = Environment()
+    #target = environment.targetMouse()
+   # environment.eatMouse(environment.population.getMice()[0]) #####testing eatMouse()
+    #safeZone = environment.mapSafeZones(environment.getObstacles()[0], environment.getCat())
     arcade.run()
    
    

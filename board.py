@@ -20,8 +20,9 @@ class Board:
     def draw(self):
         
         #Point lists for drawing lines on board
-        point_list_vertical = ((W/5, H),(W/5, H/20 ), ((W - (W/5)), 0), ((W - (W/5)), (H - H/20)), ((W - (W/5) - (H/20)), (H/20)), ((W - (W/5) - (H/20)), (H - H/20)))  
-        point_list_horizontal = ((((W/5) + (H/20)), (H/20)), ((W - (W/5) - (H/20)), (H/20)))
+      
+        point_list_vertical = ((float(int(W/5)), H),(float(int(W/5)), float(int(H/20))), (float(int((W - (W/5)))), 0), (float(int(W - (W/5))), float(int(H - H/20))), (float(int(W - (W/5) - (H/20))), float(int(H/20))), (float(int(W - (W/5) - (H/20))), float(int(H - H/20))))  
+        point_list_horizontal = ((float(int((W/5) + (H/20))), float(int((H/20)))), (float(int(W - (W/5) - (H/20))), float(int(H/20))))
 
         arcade.draw_lines(point_list_vertical, BLACK, 2.0)
         arcade.draw_lines(point_list_horizontal, BLACK, 2.0)

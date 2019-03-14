@@ -16,4 +16,7 @@ class Cat:
 
     def getCoords(self):
         return self.coords
+
+    def draw(self):
+        arcade.draw_circle_filled(self.coords[0], self.coords[1], float(int(W/50)), arcade.color.RED_DEVIL)  
      
