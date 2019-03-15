@@ -41,14 +41,18 @@ class MyGame(arcade.Window):
         arcade.start_render()
         self.board.draw()
         self.environment.draw()
-        safeZone = self.environment.mapSafeZones(self.environment.getObstacles()[0][0], self.environment.getCat()) #debugging
-        for coord in range (0, len(safeZone)):
-            if coord%50 == 0:
-                arcade.draw_circle_filled(safeZone[coord][0], safeZone[coord][1], float(int(W/300)), arcade.color.BLUE)
-        safeZone1 = self.environment.mapSafeZones(self.environment.getObstacles()[1][0], self.environment.getCat()) #debugging
-        for coord in range (0, len(safeZone1)):
-            if coord%50 == 0:
-                arcade.draw_circle_filled(safeZone1[coord][0], safeZone1[coord][1], float(int(W/300)), arcade.color.BLUE)
+        safeCoords1 = self.environment.mapSafeZones(self.environment.getObstacles()[0][0], self.environment.getCat()) #debugging
+        safeCoords2 = self.environment.mapSafeZones(self.environment.getObstacles()[1][0], self.environment.getCat()) #debugging
+        
+        #add blue safe zone dots for testing
+        for i in range (0, len(safeCoords1)):
+            arcade.draw_circle_filled(safeCoords1[i][0], safeCoords1[i][1], float(int(W/100)), arcade.color.BLUE)
+        for i in range (0, len(safeCoords2)):
+            arcade.draw_circle_filled(safeCoords2[i][0], safeCoords2[i][1], float(int(W/100)), arcade.color.BLUE)
+        
+        #move cat for testing
+        if self.environment.cat.getCoords()[1] > H/20 + (W/50):
+            self.environment.cat.move(0, -5)
 
         
     
