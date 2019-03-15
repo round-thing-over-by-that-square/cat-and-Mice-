@@ -8,6 +8,8 @@ import time
 import copy
 
 from board import Board
+from board import W
+from board import H
 from environment import Environment
 
 
@@ -39,8 +41,14 @@ class MyGame(arcade.Window):
         arcade.start_render()
         self.board.draw()
         self.environment.draw()
-        safeZone = self.environment.mapSafeZones(self.environment.getObstacles()[0], self.environment.getCat()) #debugging
-        x = "debug pt" ###############################
+        safeZone = self.environment.mapSafeZones(self.environment.getObstacles()[0][0], self.environment.getCat()) #debugging
+        for coord in range (0, len(safeZone)):
+            if coord%50 == 0:
+                arcade.draw_circle_filled(safeZone[coord][0], safeZone[coord][1], float(int(W/300)), arcade.color.BLUE)
+        safeZone1 = self.environment.mapSafeZones(self.environment.getObstacles()[1][0], self.environment.getCat()) #debugging
+        for coord in range (0, len(safeZone1)):
+            if coord%50 == 0:
+                arcade.draw_circle_filled(safeZone1[coord][0], safeZone1[coord][1], float(int(W/300)), arcade.color.BLUE)
 
         
     

@@ -25,6 +25,8 @@ class Environment:
         self.cat.draw()
         for mouse in self.population.getMice():
             mouse.draw()
+        #arcade.draw_circle_filled(715, 236, float(int(W/100)), arcade.color.PURPLE)
+        #arcade.draw_circle_filled(617, 138, float(int(W/100)), arcade.color.PURPLE)
 
     def getObstacles(self):
         return self.obstacles
@@ -78,8 +80,11 @@ class Environment:
         #slope of line perpenticular to line between cat and obstical
         m2 = -1 / m1
         #Calculate x and y coords 
-        coord1 = [int(obstacle.getRadius() * math.cos(math.atan(m2))), int(obstacle.getRadius() * math.cos(math.atan(m2)))]
-        coord2 = [int(obstacle.getRadius()* -1 * math.cos(math.atan(m2))), int(obstacle.getRadius() * -1 * math.cos(math.atan(m2)))]
+        coord1 = [obstacle.getCoords()[0] + (int(obstacle.getRadius() * math.cos(math.atan(m2)))), obstacle.getCoords()[1] + (int(obstacle.getRadius() * math.cos(math.atan(m2))))]
+        coord2 = [obstacle.getCoords()[0] + (int(obstacle.getRadius() * -1 * math.cos(math.atan(m2)))), obstacle.getCoords()[1] + (int(obstacle.getRadius() * -1 * math.cos(math.atan(m2))))]
+       
+        arcade.draw_circle_filled(coord1[0], coord1[1], float(int(W/100)), arcade.color.PURPLE)############
+        arcade.draw_circle_filled(coord2[0], coord2[1], float(int(W/100)), arcade.color.PURPLE)###########
         return [coord1, coord2]
     
     def getMinOrMaxXandY(self, obstacle, cat, coords):
@@ -95,9 +100,9 @@ class Environment:
         elif cat.getCoords()[1] < obstacle.getCoords()[1] + obstacle.getRadius(): 
             minY = min(coords[0][1], coords[1][1])
 
-        if cat.getCoords()[1] >= obstacle.getCoords()[1] + obstacle.getRadius(): 
+        if cat.getCoords()[0] >= obstacle.getCoords()[0] + obstacle.getRadius(): 
             maxX = max(coords[0][0], coords[1][0])
-        elif cat.getCoords()[1] < obstacle.getCoords()[1] + obstacle.getRadius(): 
+        elif cat.getCoords()[0] < obstacle.getCoords()[0] + obstacle.getRadius(): 
             minX = min(coords[0][0], coords[1][0]) 
 
         if cat.getCoords()[1] > obstacle.getCoords()[1] - obstacle.getRadius() and cat.getCoords()[1] > obstacle.getCoords()[1] + obstacle.getRadius():
@@ -126,10 +131,18 @@ class Environment:
         for x in range (int(xStart), int(xEnd)):
             for y in range (int(yStart), int(yEnd)):
                 #if the line between the current coord and the cat lies between the lines formed by the cat and object sides
-                if ((abs(cat.getCoords()[1] - y) / (cat.getCoords[0] - x)) > abs(cat.getCoords()[1] - coords[0][1] / (cat.getCoords[0] - coords[0][0])) and
-                (abs(cat.getCoords()[1] - y) / (cat.getCoords[0] - x)) < abs(cat.getCoords()[1] - coords[1][1] / (cat.getCoords[0] - coords[1][0])) or
-                ((abs(cat.getCoords()[1] - y) / (cat.getCoords[0] - x)) < abs(cat.getCoords()[1] - coords[0][1] / (cat.getCoords[0] - coords[0][0])) and
-                (abs(cat.getCoords()[1] - y) / (cat.getCoords[0] - x)) > abs(cat.getCoords()[1] - coords[1][1] / (cat.getCoords[0] - coords[1][0])))):
+                coor = cat.getCoords()[0]
+                if (cat.getCoords()[0] - x) == 0 or (cat.getCoords()[0] - coords[1][0]) == 0  or (cat.getCoords()[0] - coords[0][0]) == 0:
+                    coor = coor+1
+
+         #       slopeCatToCurLoc = (cat.getCoords()[1] - y) / (coor - x) ################################################
+          #      slopeCatObs1 = (cat.getCoords()[1] - coords[0][1]) / (cat.getCoords()[0] - coords[0][0]) #####################
+           #     slopeCatObs2 = (cat.getCoords()[1] - coords[1][1]) / (cat.getCoords()[0] - coords[1][0])  #####################
+                
+                if ((((cat.getCoords()[1] - y) / (coor - x) > (cat.getCoords()[1] - coords[0][1]) / (cat.getCoords()[0] - coords[0][0])) and
+                ((cat.getCoords()[1] - y) / (coor - x) < (cat.getCoords()[1] - coords[1][1]) / (cat.getCoords()[0] - coords[1][0]))) or
+                (((cat.getCoords()[1] - y) / (coor - x) < (cat.getCoords()[1] - coords[0][1]) / (cat.getCoords()[0] - coords[0][0])) and
+                ((cat.getCoords()[1] - y) / (coor - x) > (cat.getCoords()[1] - coords[1][1]) / (cat.getCoords()[0] - coords[1][0])))):
                     safeZone.append([x, y])
         return safeZone
 

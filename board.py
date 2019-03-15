@@ -26,6 +26,10 @@ class Board:
 
         arcade.draw_lines(point_list_vertical, BLACK, 2.0)
         arcade.draw_lines(point_list_horizontal, BLACK, 2.0)
+
+        
        
 
 ## end Board class
+
+
