@@ -11,11 +11,13 @@ from board import Board
 from board import W
 from board import H
 from environment import Environment
+from board import W
+from board import H
 
 
 ##### CONSTANTS #####
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = int(WINDOW_WIDTH * 0.75)
+#WINDOW_WIDTH = 1000
+#WINDOW_HEIGHT = int(WINDOW_WIDTH * 0.75)
 TITLE = "Cat and Mice"  
 
 ####################
@@ -41,8 +43,9 @@ class MyGame(arcade.Window):
         arcade.start_render()
         self.board.draw()
         self.environment.draw()
-        safeCoords1 = self.environment.mapSafeZones(self.environment.getObstacles()[0][0], self.environment.getCat()) #debugging
-        safeCoords2 = self.environment.mapSafeZones(self.environment.getObstacles()[1][0], self.environment.getCat()) #debugging
+        self.environment.setSafeZones(self.environment.getObstacles(), self.environment.getCat())
+        safeCoords1 = self.environment.mapSafeZone(self.environment.getObstacles()[0][0], self.environment.getCat()) #debugging
+        safeCoords2 = self.environment.mapSafeZone(self.environment.getObstacles()[1][0], self.environment.getCat()) #debugging
         
         #add blue safe zone dots for testing
         for i in range (0, len(safeCoords1)):
@@ -51,8 +54,8 @@ class MyGame(arcade.Window):
             arcade.draw_circle_filled(safeCoords2[i][0], safeCoords2[i][1], float(int(W/100)), arcade.color.BLUE)
         
         #move cat for testing
-        if self.environment.cat.getCoords()[1] > H/20 + (W/50):
-            self.environment.cat.move(0, -5)
+        if self.environment.cat.getCoords()[1] > H/40 + (W/50):
+            self.environment.cat.move(0, -10)
 
         
     
@@ -61,7 +64,7 @@ class MyGame(arcade.Window):
 def main():
    # f = open("data.txt", "w+")
     #f.write("") 
-    window = MyGame(WINDOW_WIDTH, WINDOW_HEIGHT, TITLE)
+    window = MyGame(W, H, TITLE)
    # environment = Environment()
     #target = environment.targetMouse()
    # environment.eatMouse(environment.population.getMice()[0]) #####testing eatMouse()

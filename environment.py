@@ -18,16 +18,14 @@ class Environment:
         self.population.bowChickaWowWow(0, 1, 4)
         self.cat = Cat()
         self.obstacles = [[Obstacle(float(int(W/15)), [float(int(W-(W/3))), float(int(H/4))])], [Obstacle(float(int(W/25)), [float(int(W/3)), float(int(H/3))])]]
-
+        self.allSafeZones = 0
     def draw(self):
         for obstacle in self.obstacles:
             obstacle[0].draw()
         self.cat.draw()
         for mouse in self.population.getMice():
             mouse.draw()
-        #arcade.draw_circle_filled(715, 236, float(int(W/100)), arcade.color.PURPLE)
-        #arcade.draw_circle_filled(617, 138, float(int(W/100)), arcade.color.PURPLE)
-
+        
     def getObstacles(self):
         return self.obstacles
 
@@ -56,13 +54,17 @@ class Environment:
     def eatMouse(self, mouse):
         self.population.getMice().remove(mouse)
 
+    def catMove(self):
+        x = "dummy"
+
+
     # Heuristics that factor into move direction:
     # -needState: 1-3 go towards, 4 go away from
     # -preferenceForConfinedSpaces, increased probablility of taking confined route, if small enough to fit
     # -make short runs to safe zones
     # -when fleeing, only run to real safe zones
     # -if obstacle in the way of real safe zone, recaluclate to the route around it to closest real path  
-    def move(self, catOrMouse, direction, speed):
+    def mouseMove(self, catOrMouse, direction, speed):
         x  = "dummy"
         #catOrMouse.setCoords(catOrMouse.getCoords())
 
@@ -71,13 +73,16 @@ class Environment:
         #find the most direct route to the closest real safe zone
         return "dummy coord"
 
+    def setSafeZones(self, obstacles, cat):
+        allSafeCoords = []
+        for obstacle in obstacles:
+            safeCoords = self.mapSafeZone(obstacle[0], cat)
+            for coord in safeCoords:
+                allSafeCoords.append(coord)
+        self.allSafeZones = allSafeCoords
 
-    def mapSafeZones(self, obstacle, cat):
+    def mapSafeZone(self, obstacle, cat):
         safeZone = []
-        test = cat.getCoords() #######################
-        test1 = obstacle.getCoords()[0]
-
-
         if ((cat.getCoords()[0] - obstacle.getCoords()[0])) == 0:
             m = .00000001
         else:
@@ -92,14 +97,14 @@ class Environment:
             for i in range (0, int(obstacle.getCoords()[1] - obstacle.getRadius())):
                 if i%10 == 0:
                     vertY = vertY - 10
-                    if vertY > H/20 and vertY < H and x < W - (W/5) - (H/20) and x > W/5:
+                    if vertY > H/40 and vertY < H and x < W - (W/5) - (H/40) and x > W/5:
                         safeZone.append([x,vertY])
         elif cat.getCoords()[1] < obstacle.getCoords()[1] and m == .00000001:
             vertY = int(obstacle.getCoords()[1] + obstacle.getRadius())
             for i in range (0, int(H - obstacle.getCoords()[1] + obstacle.getRadius())):
                 if i%10 == 0:
                     vertY = vertY + 10
-                    if vertY > H/20 and vertY < H and x < W - (W/5) - (H/20) and x > W/5:
+                    if vertY > H/40 and vertY < H and x < W - (W/5) - (H/40) and x > W/5:
                         safeZone.append([x,vertY])
 
         #Handle defined slopes
@@ -121,12 +126,18 @@ class Environment:
                         x = x - 10
         return safeZone
 
+    #return distance between two coords
     def getDistance(self, coord1, coord2):
         return math.sqrt((coord1[0]-coord2[0])**2 + (coord1[1]-coord2[1])**2)
 
- #(int(W/5), int(W - W/5)): #only search in the cat room
+    #(int(W/5), int(W - W/5)): #only search in the cat room
     def findNearestSafeZone(self, mouse):
-        return "dummy coord"
+        minCoord = [[-1, -1], 10000000]
+        for coord in self.allSafeZones:
+            d = self.distance(mouse.getCoords(), coord)
+            if  d < minCoord[1]:
+                minCoord = [coord, d]
+        return minCoord[0]
 
     def takeTunnel(self, mouse):
         if mouse.getSize().self.getStringBin() == 0:

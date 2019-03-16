@@ -5,7 +5,7 @@
 import random
 from mouse import Mouse
 
-POP_SIZE = 100
+POP_SIZE = 50
 
 class Population:
     def __init__(self):
