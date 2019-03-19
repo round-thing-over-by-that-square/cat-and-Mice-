@@ -15,6 +15,9 @@ class Need:
     def draw(self):
         self.sprite.draw()
 
+    def getCoords(self):
+        return self.coords
+
     def getSprite(self):
         return self.sprite
 

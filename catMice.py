@@ -14,8 +14,6 @@ from board import Board
 from board import W
 from board import H
 from environment import Environment
-from board import W
-from board import H
 
 
 ##### CONSTANTS #####

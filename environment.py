@@ -25,11 +25,11 @@ class Environment(arcade.Sprite):
         waterSprite = arcade.Sprite("images/water.png", 1)
         self.cheeseList = arcade.SpriteList()  
         self.waterList = arcade.SpriteList()     
-        cheeseBasket = [Need('E', [W/20, H/5], copy.deepcopy(cheeseSprite)), Need('E', [W/20, 2*H/5], copy.deepcopy(cheeseSprite)), Need('E', [W/20, 3*H/5], copy.deepcopy(cheeseSprite)), Need('E', [W/20, 4*H/5], copy.deepcopy(cheeseSprite))]
-        waterPitcher = [Need('D', [W-(W/20), H/5], copy.deepcopy(waterSprite)), Need('D', [W-(W/20), 2*H/5], copy.deepcopy(waterSprite)), Need('D', [W-(W/20), 3*H/5], copy.deepcopy(waterSprite)), Need('D', [W-(W/20), 4*H/5], copy.deepcopy(waterSprite))]
-        for cheese in cheeseBasket:
+        self.cheeseBasket = [Need('E', [W/20, H/5], copy.deepcopy(cheeseSprite)), Need('E', [W/20, 2*H/5], copy.deepcopy(cheeseSprite)), Need('E', [W/20, 3*H/5], copy.deepcopy(cheeseSprite)), Need('E', [W/20, 4*H/5], copy.deepcopy(cheeseSprite))]
+        self.waterPitcher = [Need('D', [W-(W/20), H/5], copy.deepcopy(waterSprite)), Need('D', [W-(W/20), 2*H/5], copy.deepcopy(waterSprite)), Need('D', [W-(W/20), 3*H/5], copy.deepcopy(waterSprite)), Need('D', [W-(W/20), 4*H/5], copy.deepcopy(waterSprite))]
+        for cheese in self.cheeseBasket:
             self.cheeseList.append(cheese.getSprite())
-        for waterBowl in waterPitcher:
+        for waterBowl in self.waterPitcher:
             self.waterList.append(waterBowl.getSprite())
     
     def draw(self):
@@ -88,8 +88,6 @@ class Environment(arcade.Sprite):
             mouseOrCat.setCoords([coord[0], coord[1]])
         midCoord = [coord[0], coord[1]]
         while self.distance(midCoord, mouseOrCat.getCoords()) >= d + 1.5:
-            rest = self.distance(midCoord, mouseOrCat.getCoords()) ############
-
             x = (mouseOrCat.getCoords()[0] + midCoord[0]) / 2
             y = (mouseOrCat.getCoords()[1] + midCoord[1]) / 2
             midCoord = [x, y]
@@ -105,6 +103,14 @@ class Environment(arcade.Sprite):
                 targetDoor[0] = door
                 targetDoor[1] = dist
         return targetDoor[0]
+
+    def findNearestCheese(self, mouse):
+        targetCheese = [-1, 100000]
+        for cheese in self.cheeseBasket:
+            dist = self.distance(cheese.getCoords(), mouse.getCoords())
+            if dist < targetCheese[1]:
+                targetCheese = [cheese, dist]
+        return targetCheese[0].getCoords()
 
     def findNearestWaterDoor(self, mouse):
         waterDoors = [[W - (W/5), H-(H/40)], [W - (W/5), H - (H/2) - (H/40)]]
@@ -168,11 +174,17 @@ class Environment(arcade.Sprite):
             if not self.isInsideCheeseRoom(mouse):
                 #ponder taking the passage (if mouse is small enough)
                 self.ponderPassage(mouse)
+                cheeseDoorCoord = self.findNearestCheeseDoor(mouse)
                 if self.isInsideWaterRoom(mouse) and mouse.getTakePassage() == True:
                     self.move([W/5, H/40], mouse, speed)
+                elif self.isInsideWaterRoom(mouse) and mouse.getTakePassage() == False:
+                    waterDoorCoord = self.findNearestWaterDoor(mouse)
+                    self.move([waterDoorCoord[0] - (H/80), waterDoorCoord[1]], mouse, speed)
+                elif self.distance(cheeseDoorCoord, mouse.getCoords()) < H/80:
+                    cheeseCoord = self.findNearestCheese(mouse)
+                    self.move(cheeseCoord, mouse, speed)
                 else:
-                    coord = self.findNearestCheeseDoor(mouse)
-                    self.move(coord, mouse, speed)
+                    self.move(cheeseDoorCoord, mouse, speed)
                 
                 
         #if need state = Drink
