@@ -5,7 +5,7 @@
 import random
 from mouse import Mouse
 
-POP_SIZE = 100
+POP_SIZE = 50
 
 class Population:
     def __init__(self):
@@ -20,7 +20,7 @@ class Population:
             self.mice.append(Mouse())
     
     # Reproduce and add offspring to self.mice
-    def bowChickaWowWow(self, mouse1Index, mouse2Index, crossoverPt):
+    def reproduce(self, mouse1Index, mouse2Index, crossoverPt):
         childChrom1 = ""
         childChrom2 = ""
         for i in range (0, crossoverPt):
@@ -33,6 +33,8 @@ class Population:
         childChrom2 = self.mutate(childChrom2)
         child1 = Mouse()
         child2 = Mouse()
+        child1.setCoords(self.mice[mouse1Index].getCoords())
+        child2.setCoords(self.mice[mouse1Index].getCoords())
         child1.setChromosome(childChrom1)
         child2.setChromosome(childChrom2)
         self.mice.append(child1)
@@ -50,6 +52,12 @@ class Population:
         for i in range(x+1, len(chromosome)):
             temp = temp + chromosome[i]
         return chromosome
+
+    def getIndex(self, mouse):
+        for i in range (0, len(self.mice)):
+            if self.mice[i] == mouse:
+                return i
+        return 0
 
 
 

@@ -17,12 +17,23 @@ class Mouse(arcade.Sprite):
         self.coords = [random.randrange(0, W), random.randrange(0, H)]
         self.spriteList = arcade.SpriteList()
         self.takePassage = 0
+        self.wanderDestination = [-1, -1]
 
-        # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee
-        self.needState = random.choice([1,2,3,4])
+        # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee, 5 = wander
+        
+        self.needState = random.choice([1,2])
 
         #self.chromosome = strength + smellType + speed + metabolicRate + size + smallSpacePrefLevel + catFear
         self.chromosome = random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS)
+
+    def getWanderDestination(self):
+        return self.wanderDestination
+
+    def setWanderDestination(self, coords):
+        self.wanderDestination = coords
+
+    def setNeedState(self, state):
+        self.needState = state
 
     def setTakePassage(self, tOrF):
         self.takePassage = tOrF
