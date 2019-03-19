@@ -16,6 +16,7 @@ class Mouse(arcade.Sprite):
         self.time = 0
         self.coords = [random.randrange(0, W), random.randrange(0, H)]
         self.spriteList = arcade.SpriteList()
+        self.takePassage = 0
 
         # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee
         self.needState = random.choice([1,2,3,4])
@@ -23,8 +24,23 @@ class Mouse(arcade.Sprite):
         #self.chromosome = strength + smellType + speed + metabolicRate + size + smallSpacePrefLevel + catFear
         self.chromosome = random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS)
 
+    def setTakePassage(self, tOrF):
+        self.takePassage = tOrF
+
+    def getTakePassage(self):
+        return self.takePassage
+
+    def getNeedState(self):
+        return self.needState
+
     def getCoords(self):
         return self.coords
+
+    def setCoords(self, coords):
+        self.coords = coords
+        for sprite in self.spriteList:
+            sprite.center_x = coords[0]
+            sprite.center_y = coords[1]
 
     def setChromosome(self, chromosome):
         self.chromosome = chromosome
@@ -69,10 +85,6 @@ class Mouse(arcade.Sprite):
 
         #handle smell type and strength
         smellAuraSprite = 0
-
-        testSmellType = self.getSmellType()
-        testSmellStrength = self.getSmellStrength()
-
         if self.getSmellType() == "00" and self.getSmellStrength() == "01":
             smellAuraSprite = arcade.Sprite("images/aura2_green.png", scale)
         elif self.getSmellType() == "00" and self.getSmellStrength() == "10":
@@ -141,6 +153,8 @@ class Mouse(arcade.Sprite):
         self.spriteList.append(mouseSprite)
 
         self.spriteList.draw()
+        for x in range (0, len(self.spriteList)):
+            self.spriteList.pop()
         
         
         
