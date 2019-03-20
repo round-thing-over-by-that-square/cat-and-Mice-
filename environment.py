@@ -3,6 +3,7 @@
 #Environment Class
 
 import arcade
+import time
 import math
 import random
 from random import uniform
@@ -93,7 +94,7 @@ class Environment(arcade.Sprite):
         
 
     def findNearestCheeseDoor(self, mouse):
-        cheeseDoors = [[W/5, H-(H/40)], [W/5, H - (H/2) - (H/40)], [W/5, H/40]]
+        cheeseDoors = [[W/5, H-(H/40)], [W/5, (H/2) - (H/40)], [W/5, (H/10) - (H/20)]]
         targetDoor = [[-1,-1], 1000000]
         for door in cheeseDoors:
             dist = self.distance(mouse.getCoords(), door)
@@ -119,7 +120,7 @@ class Environment(arcade.Sprite):
         return targetWaterDish[0].getCoords()
 
     def findNearestWaterDoor(self, mouse):
-        waterDoors = [[W - (W/5), H-(H/40)], [W - (W/5), H - (H/2) - (H/40)]]
+        waterDoors = [[W - (W/5), H-(H/20)], [W - (W/5), (H/2)-(H/40)]]
         targetDoor = [[-1, -1], 1000000]
         for door in waterDoors:
             dist = self.distance(mouse.getCoords(), door)
@@ -159,11 +160,11 @@ class Environment(arcade.Sprite):
 
     def wander(self, mouse, speed):
         if (self.isInsideCheeseRoom(mouse) and mouse.getWanderDestination() == [-1, -1]):# or self.distance(mouse.getWanderDestination(), mouse.getCoords()) < H/80:
-            destination = [uniform(W/10, W/5), uniform(0, H)]
+            destination = [uniform(W/10, (W/5)-(H/80)), uniform(0, H)]
             mouse.setWanderDestination(destination)
             self.move(destination, mouse, speed)
         elif (self.isInsideWaterRoom(mouse) and mouse.getWanderDestination() == [-1, -1]):# or self.distance(mouse.getWanderDestination(), mouse.getCoords()) < H/80:
-            destination1 = [uniform(W-W/10, W-W/5), uniform(0, H)]
+            destination1 = [uniform(W-W/10, W-W/5+(H/80)), uniform(0, H)]
             mouse.setWanderDestination(destination1)
             self.move(destination1, mouse, speed)
         elif mouse.getWanderDestination() != [-1, -1]:
@@ -184,46 +185,71 @@ class Environment(arcade.Sprite):
     # -if obstacle in the way of real safe zone, recaluclate to the route around it to closest real path  
     def mouseMove(self, mouse):
         if mouse.getSpeed() == "00":
-            speed = 1
+            speed = .5
         if mouse.getSpeed() == "01":
-            speed = 2
+            speed = 1
         if mouse.getSpeed() == "10":
-            speed = 4
+            speed = 2
         if mouse.getSpeed() == "11":
-            speed = 8
+            speed = 5
 
-        
-        
+        if mouse.getCatFear() == "00":
+            fearDistance = H/30
+        if mouse.getCatFear() == "01":
+            fearDistance = H/20
+        if mouse.getCatFear() == "10":
+            fearDistance = H/10
+        if mouse.getCatFear() == "11":
+            fearDistance = H/5
+
+        #Trigger flee state if the cat is within mouse's fear distance
+        if self.distance(mouse.getCoords(), self.cat.getCoords()) < fearDistance:
+            if mouse.getCoords()[0] > W/5 and mouse.getCoords()[1] > H/40 and mouse.getCoords()[0] < W-(W/5)-(H/39):
+                mouse.setNeedState(4)
+            elif mouse.getCoords()[0] > W-(W/5)-(H/30) and mouse.getCoords()[1] > (H/2) + (H/40) and mouse.getCoords()[0] < W-(W/5):
+                mouse.setNeedState(4)
 
         #if need state = Eat   
         if mouse.getNeedState() == 1:
+            goNorth = [mouse.getCoords()[0], (H/3)]
+            if time.clock() - mouse.getStateClock() > 35:
+                self.population.killMouse(mouse) #dies of starvation
             cheeseDoorCoord = self.findNearestCheeseDoor(mouse)
             waterDoorCoord = self.findNearestWaterDoor(mouse)
             if not self.isInsideCheeseRoom(mouse):
                 #ponder taking the passage (if mouse is small enough)
                 self.ponderPassage(mouse)
-                if self.isInsideWaterRoom(mouse) and mouse.getTakePassage() == True:
-                    self.move([W/5, H/40], mouse, speed)
+               # if self.isInsideWaterRoom(mouse) and mouse.getWanderDestination() == goNorth and self.distance(mouse.getCoords(), goNorth) < H/80:
+                    #mouse.setNeedState(1)
+                if self.isInsideWaterRoom(mouse) and mouse.getCoords()[1] < H/3:
+                    mouse.setWanderDestination(goNorth)
+                    self.move(mouse.getWanderDestination(), mouse, speed)
+                elif self.isInsideWaterRoom(mouse) and mouse.getTakePassage() == True:
+                    self.move([W-(W/5)-(H/40), (H/2)-(H/40)], mouse, speed)
                 elif self.isInsideWaterRoom(mouse) and mouse.getTakePassage() == False:
-                    self.move([waterDoorCoord[0] - (H/80), waterDoorCoord[1]], mouse, speed)
+                    self.move([waterDoorCoord[0] - (H/150), waterDoorCoord[1]], mouse, speed)##############
                 else:
                     self.move([cheeseDoorCoord[0] -(H/80), cheeseDoorCoord[1]], mouse, speed)
             else:
                 cheeseCoord = self.findNearestCheese(mouse)
                 if self.distance(mouse.getCoords(), cheeseCoord) > H/40:
+                    mouse.setWanderDestination([-1, -1])
                     self.move(cheeseCoord, mouse, speed)
                 else:
+                    mouse.setStateClock(time.clock())
                     mouse.setNeedState(5)
                 
 
         #if need state = Drink
         elif mouse.getNeedState() == 2:
+            if time.clock() - mouse.getStateClock() > 35: 
+                self.population.killMouse(mouse) #dies of thirst 
             if not self.isInsideWaterRoom(mouse):
                 self.ponderPassage(mouse)
                 cheeseDoorCoord = self.findNearestCheeseDoor(mouse)
                 waterDoorCoord = self.findNearestWaterDoor(mouse)
                 if self.isInsideCheeseRoom(mouse) and mouse.getTakePassage() == True:
-                    self.move([W-(W/5)-(H/40), (W/2 + H/40)], mouse, speed)
+                    mouse.setNeedState(6)
                 elif self.isInsideCheeseRoom(mouse) and mouse.getTakePassage() == False:
                     self.move([cheeseDoorCoord[0] + (H/80), cheeseDoorCoord[1]], mouse, speed)
                 else:
@@ -231,8 +257,10 @@ class Environment(arcade.Sprite):
             else:
                 waterCoord = self.findNearestWater(mouse)
                 if self.distance(mouse.getCoords(), waterCoord) > H/40:
+                    mouse.setWanderDestination([-1, -1])
                     self.move(waterCoord, mouse, speed)
                 else:
+                    mouse.setStateClock(time.clock())
                     mouse.setNeedState(5)
 
     
@@ -250,6 +278,7 @@ class Environment(arcade.Sprite):
                 self.population.reproduce(self.population.getIndex(mouse), self.population.getIndex(potentialMate[0]), random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13]))
                 potentialMate[0].setNeedState(1)
                 mouse.setNeedState(2)
+                
             else:
                 self.move(potentialMate[0].getCoords(), mouse, speed)
         
@@ -257,9 +286,39 @@ class Environment(arcade.Sprite):
         elif mouse.getNeedState() == 4:
             safeCoord = self.getFleeCoord(mouse)
             self.move(safeCoord, mouse, speed)
+            mouse.setStateClock(time.clock() + 25)
+            if self.distance(mouse.getCoords(), safeCoord) < H/80:
+                mouse.setNeedState(5)
 
+        #if need state = wander
         elif mouse.getNeedState() == 5:
-            self.wander(mouse, speed)
+            if time.clock() - mouse.getStateClock() > 30: 
+                mouse.setStateClock(time.clock())
+                if self.isInsideCheeseRoom(mouse):
+                    mouse.setNeedState(2)
+                else:
+                    mouse.setNeedState(1)
+            else:
+                self.wander(mouse, speed)
+
+        #if taking passage
+        elif mouse.getNeedState() == 6:
+            coords = mouse.getCoords()
+            passageEntranceWater = [W-(W/5)-(H/60), (W/2 + H/40)]
+            passageEntranceCheese = [W/5, H/40]
+            passageCornerToCheese = [W-(W/5)-(H/60), H/40]
+            passageCornerToWater = passageCornerToCheese
+            
+            if coords[0] > W-(W/5):
+                mouse.setWanderDestination(passageEntranceWater)
+            elif self.distance(coords, passageEntranceWater) < H/80 and mouse.getWanderDestination() == passageEntranceWater:
+                mouse.setWanderDestination(passageCornerToCheese)
+            elif coords[0] < (W/5):
+                mouse.setWanderDestination(passageEntranceCheese)
+            elif self.distance(mouse.getCoords(), passageEntranceCheese) < H/80 and mouse.getWanderDestination() == passageEntranceCheese:
+                mouse.setWanderDestination(passageCornerToWater)
+            self.move(mouse.getWanderDestination(), mouse, speed)
+
 
     #################################################################################################################################
     #################################################################################################################################         

@@ -12,7 +12,7 @@ class Cat:
     def __init__(self):
         self.age = 0
         self.time = 0
-        self.coords = [float(int(W - W/3)), float(int(H - H/5))]
+        self.coords = [float(int(W/2)), float(int(H - H/5))]
 
     def getCoords(self):
         return self.coords

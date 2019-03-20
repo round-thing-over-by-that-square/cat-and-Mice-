@@ -14,17 +14,29 @@ class Mouse(arcade.Sprite):
     def __init__(self):
         self.age = 0
         self.time = 0
-        self.coords = [random.randrange(0, W), random.randrange(0, H)]
+        cheeseRoom = [random.randrange(W/10, W/5), random.randrange(0, H)]
+        waterRoom = [random.randrange(W-(W/5), W-(W/10)), random.randrange(0, H)]
+        self.coords = random.choice([cheeseRoom, waterRoom])
         self.spriteList = arcade.SpriteList()
         self.takePassage = 0
         self.wanderDestination = [-1, -1]
-
-        # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee, 5 = wander
         
+
+        # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee, 5 = wander, 6 = passage
         self.needState = random.choice([1,2])
+
+        self.stateClock = time.clock()
+
+
 
         #self.chromosome = strength + smellType + speed + metabolicRate + size + smallSpacePrefLevel + catFear
         self.chromosome = random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS)
+
+    def getStateClock(self):
+        return self.stateClock
+
+    def setStateClock(self, time):
+        self.stateClock = time 
 
     def getWanderDestination(self):
         return self.wanderDestination

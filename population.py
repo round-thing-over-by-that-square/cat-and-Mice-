@@ -53,6 +53,9 @@ class Population:
             temp = temp + chromosome[i]
         return chromosome
 
+    def killMouse(self, mouse):
+        self.mice.remove(mouse)
+
     def getIndex(self, mouse):
         for i in range (0, len(self.mice)):
             if self.mice[i] == mouse:
