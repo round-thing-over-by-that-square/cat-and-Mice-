@@ -1,6 +1,5 @@
 #Alex Lewandowski
-#Visible Object Classes for Othello
-#Board, Tiles, AgentMenu, and Scoreboard
+#Cat and mice board
 #2/09/19
 #CS405 Homework 1
 
@@ -24,14 +23,16 @@ class Board:
         
         #Point lists for drawing lines on board
       
-        point_list_vertical = ((float(int(W/5)), float(int(H- ((3*H)/40)))), (float(int(W/5)), float(int(H/2))), (float(int(W/5)), float(int(H/2 - H/20))), (float(int(W/5)), float(int((H/10) + (H/40)))), 
-        (float(int((W - (W/5)))), float(int(H - H/20))),  (float(int((W - (W/5)))), float(int(H/2))),  (float(int((W - (W/5)))), float(int(H/2)-(H/20))), (float(int(W - (W/5))), 0), 
-        (float(int(W - (W/5) - (H/30))), float(int(H/20))), (float(int(W - (W/5) - (H/30))), float(int(H - (H/2) - (H/20)))))  
+        cheeseWall = ((float(int(W/5)), float(int(H- ((3*H)/40)))), (float(int(W/5)), float(int(H/2))), (float(int(W/5)), float(int(H/2 - H/20))), (float(int(W/5)), float(int((H/10) + (H/40)))))
+        waterWall = ((float(int((W - (W/5)))), float(int(H - H/20))),  (float(int((W - (W/5)))), float(int(H/2))),  (float(int((W - (W/5)))), float(int(H/2)-(H/20))), (float(int(W - (W/5))), 0))
+        passageWallVert = ((float(int(W - (W/5) - (H/30))), float(int(H/20))), (float(int(W - (W/5) - (H/30))), float(int(H - (H/2) - (H/20)))))  
         
-        point_list_horizontal = ((float(int(W/5)), float(int((H/20)))), (float(int(W - (W/5) - (H/40))), float(int(H/20)))) #############################################################################################################################################################################################################
+        passageWallHoriz = ((float(int(W/5)), float(int((H/20)))), (float(int(W - (W/5) - (H/30))), float(int(H/20)))) #############################################################################################################################################################################################################
 
-        arcade.draw_lines(point_list_vertical, BLACK, 2.0)
-        arcade.draw_lines(point_list_horizontal, BLACK, 2.0)
+        arcade.draw_lines(cheeseWall, BLACK, 2.0)
+        arcade.draw_lines(waterWall, BLACK, 2.0)
+        arcade.draw_lines(passageWallVert, BLACK, 2.0)
+        arcade.draw_lines(passageWallHoriz, BLACK, 2.0)
 
         
        

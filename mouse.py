@@ -18,7 +18,7 @@ class Mouse(arcade.Sprite):
         waterRoom = [random.randrange(W-(W/5), W-(W/10)), random.randrange(0, H)]
         self.coords = random.choice([cheeseRoom, waterRoom])
         self.spriteList = arcade.SpriteList()
-        self.takePassage = 0
+        self.takePassage = -1
         self.wanderDestination = [-1, -1]
         
 
