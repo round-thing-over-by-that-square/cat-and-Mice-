@@ -177,19 +177,19 @@ class Environment(arcade.Sprite):
 
 
     def wander(self, mouse, speed):
-        if (self.isInsideCheeseRoom(mouse) and mouse.getWanderDestination() == [-1, -1]):# or self.distance(mouse.getWanderDestination(), mouse.getCoords()) < H/80:
+        if (self.isInsideCheeseRoom(mouse) and mouse.getWanderDestination()[0] == [-1, -1]):# or self.distance(mouse.getWanderDestination(), mouse.getCoords()) < H/80:
             destination = [uniform(W/10, (W/5)-(H/80)), uniform(0, H)]
-            mouse.setWanderDestination(destination)
+            mouse.setWanderDestination(destination, 'x')
             self.move(destination, mouse, speed)
-        elif (self.isInsideWaterRoom(mouse) and mouse.getWanderDestination() == [-1, -1]):# or self.distance(mouse.getWanderDestination(), mouse.getCoords()) < H/80:
+        elif (self.isInsideWaterRoom(mouse) and mouse.getWanderDestination()[0] == [-1, -1]):# or self.distance(mouse.getWanderDestination(), mouse.getCoords()) < H/80:
             destination1 = [uniform(W-W/10, W-W/5+(H/80)), uniform(0, H)]
-            mouse.setWanderDestination(destination1)
+            mouse.setWanderDestination(destination1, 'x')
             self.move(destination1, mouse, speed)
-        elif mouse.getWanderDestination() != [-1, -1]:
-            if self.distance(mouse.getWanderDestination(), mouse.getCoords()) > H/80:
-                self.move(mouse.getWanderDestination(), mouse, speed)
+        elif mouse.getWanderDestination()[0] != [-1, -1]:
+            if self.distance(mouse.getWanderDestination()[0], mouse.getCoords()) > H/80:
+                self.move(mouse.getWanderDestination()[0], mouse, speed)
             else:
-                mouse.setWanderDestination([-1, -1])
+                mouse.setWanderDestination([-1, -1], 'x')
 
 
             
@@ -242,8 +242,8 @@ class Environment(arcade.Sprite):
                     #ponder taking the passage (if mouse is small enough)
                     self.ponderPassage(mouse)
                 if self.isInsideWaterRoom(mouse) and mouse.getCoords()[1] < H/3:
-                    mouse.setWanderDestination(goNorth)
-                    self.move(mouse.getWanderDestination(), mouse, speed)
+                    mouse.setWanderDestination(goNorth, 'n')
+                    self.move(mouse.getWanderDestination()[0], mouse, speed)
                 elif self.isInsideWaterRoom(mouse) and mouse.getTakePassage() == True:
                     mouse.setNeedState(6)
                     #self.move([W-(W/5)-(H/40), (H/2)-(H/40)], mouse, speed)
@@ -254,7 +254,7 @@ class Environment(arcade.Sprite):
             else:
                 cheeseCoord = self.findNearestCheese(mouse)
                 if self.distance(mouse.getCoords(), cheeseCoord) > H/40:
-                    mouse.setWanderDestination([-1, -1])
+                    mouse.setWanderDestination([-1, -1], 'x')
                     self.move(cheeseCoord, mouse, speed)
                 else:
                     mouse.setStateClock(time.clock())
@@ -281,7 +281,7 @@ class Environment(arcade.Sprite):
             else:
                 waterCoord = self.findNearestWater(mouse)
                 if self.distance(mouse.getCoords(), waterCoord) > H/40:
-                    mouse.setWanderDestination([-1, -1])
+                    mouse.setWanderDestination([-1, -1], 'x')
                     self.move(waterCoord, mouse, speed)
                 else:
                     mouse.setStateClock(time.clock())
@@ -331,21 +331,30 @@ class Environment(arcade.Sprite):
             coords = mouse.getCoords()
             passageEntranceWater = [W-(W/5)-(H/60), (H/2 - H/20)]
             passageEntranceCheese = [W/5, H/40]
-            passageCornerToCheese = [W-(W/5)-(H/60), H/40]
-            passageCornerToWater = passageCornerToCheese
+            passageCorner = [W-(W/5)-(H/60), H/40]
             
             # if in water room
-            if coords[0] > W-(W/5):
-                mouse.setWanderDestination(passageEntranceWater)
-            elif self.distance(coords, passageEntranceWater) < H/80 and mouse.getWanderDestination() == passageEntranceWater:
-                mouse.setWanderDestination(passageCornerToCheese)
+            if coords[0] > W-(W/5) and mouse.getWanderDestination()[1] != 'c' and mouse.getWanderDestination()[1] != 'w':
+                mouse.setWanderDestination(passageEntranceWater, 'c')
+            elif self.distance(coords, passageEntranceWater) < H/80 and mouse.getWanderDestination()[1] == 'c':
+                mouse.setWanderDestination(passageCorner, 'c')
+            elif self.distance(coords, passageCorner) < H/80 and mouse.getWanderDestination()[1] == 'c':
+                mouse.setWanderDestination(passageEntranceCheese, 'c')
+            elif self.distance(coords, passageEntranceCheese) < H/80 and mouse.getWanderDestination()[1] == 'c':
+                mouse.setNeedState(1)
+            
 
             # if in cheese room
-            elif coords[0] < (W/5):
-                mouse.setWanderDestination(passageEntranceCheese)
-            elif self.distance(mouse.getCoords(), passageEntranceCheese) < H/80 and mouse.getWanderDestination() == passageEntranceCheese:
-                mouse.setWanderDestination(passageCornerToWater)
-            self.move(mouse.getWanderDestination(), mouse, speed)
+            elif coords[0] < (W/5) and mouse.getWanderDestination()[1] != 'c' and mouse.getWanderDestination()[1] != 'w':
+                mouse.setWanderDestination(passageEntranceCheese, 'w')
+            elif self.distance(coords, passageEntranceCheese) < H/80 and mouse.getWanderDestination()[1] == 'w':
+                mouse.setWanderDestination(passageCorner, 'w')
+            elif self.distance(coords, passageCorner) < H/80 and mouse.getWanderDestination()[1] == 'w':
+                mouse.setWanderDestination(passageEntranceWater, 'w')
+            elif self.distance(coords, passageEntranceWater) < H/80 and mouse.getWanderDestination()[1] == 'w':
+                mouse.setNeedState(2)
+
+            self.move(mouse.getWanderDestination()[0], mouse, speed)
 
 
     #################################################################################################################################

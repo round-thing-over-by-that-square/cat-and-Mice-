@@ -19,7 +19,7 @@ class Mouse(arcade.Sprite):
         self.coords = random.choice([cheeseRoom, waterRoom])
         self.spriteList = arcade.SpriteList()
         self.takePassage = -1
-        self.wanderDestination = [-1, -1]
+        self.wanderDestination = [[-1, -1], 'x']
         
 
         # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee, 5 = wander, 6 = passage
@@ -41,9 +41,9 @@ class Mouse(arcade.Sprite):
     def getWanderDestination(self):
         return self.wanderDestination
 
-    def setWanderDestination(self, coords):
-        self.wanderDestination = coords
-
+    def setWanderDestination(self, coords, destination):
+        self.wanderDestination[0] = coords
+        self.wanderDestination[1] = destination
     def setNeedState(self, state):
         self.needState = state
 
