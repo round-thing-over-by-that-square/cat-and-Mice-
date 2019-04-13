@@ -15,6 +15,8 @@ from board import H
 from needs import Need
 import copy
 
+DEATH_AGE = 500
+
 class Environment(arcade.Sprite):
     def __init__(self):
         self.population = Population()
@@ -205,13 +207,13 @@ class Environment(arcade.Sprite):
 
         #Apply speed gene gene  
         if mouse.getSpeed() == "00":
-            speed = .5
+            speed = 5 #1 #.5
         if mouse.getSpeed() == "01":
-            speed = 1
+            speed = 10 #2 #1
         if mouse.getSpeed() == "10":
-            speed = 2
+            speed = 15 #4 #2
         if mouse.getSpeed() == "11":
-            speed = 5
+            speed = 25 #8 #5
 
         #Apply catFear gene
         if mouse.getCatFear() == "00":
@@ -223,12 +225,18 @@ class Environment(arcade.Sprite):
         if mouse.getCatFear() == "11":
             fearDistance = H/5
 
+        # Mouse dies of old age
+        if time.clock() - mouse.getBirthTime() > DEATH_AGE:
+            mouse.killMouse()
+
         #Trigger flee state if the cat is within mouse's fear distance
         if self.distance(mouse.getCoords(), self.cat.getCoords()) < fearDistance:
-            if mouse.getCoords()[0] > W/5 and mouse.getCoords()[1] > H/40 and mouse.getCoords()[0] < W-(W/5)-(H/39):
+            if mouse.getCoords()[0] > W/5 and mouse.getCoords()[1] > H/20 and mouse.getCoords()[0] < W-(W/5)-(H/39):
                 mouse.setNeedState(4)
             elif mouse.getCoords()[0] > W-(W/5)-(H/30) and mouse.getCoords()[1] > (H/2) + (H/40) and mouse.getCoords()[0] < W-(W/5):
                 mouse.setNeedState(4)
+
+        
 
         #if need state = Eat   
         if mouse.getNeedState() == 1:
@@ -251,7 +259,7 @@ class Environment(arcade.Sprite):
                     self.move([waterDoorCoord[0] - (H/150), waterDoorCoord[1]], mouse, speed)##############
                 else:
                     self.move([cheeseDoorCoord[0] -(H/80), cheeseDoorCoord[1]], mouse, speed)
-            else:
+            else: #inside cheeseroom
                 cheeseCoord = self.findNearestCheese(mouse)
                 if self.distance(mouse.getCoords(), cheeseCoord) > H/40:
                     mouse.setWanderDestination([-1, -1], 'x')
@@ -259,7 +267,12 @@ class Environment(arcade.Sprite):
                 else:
                     mouse.setStateClock(time.clock())
                     self.ponderPassage(mouse)
+                    if mouse.getMateCount() < 3 and time.clock() - mouse.getBirthTime() > 5:
+                        mouse.mateCountPlusPlus()
+                        mouse.prepareToMate = True
                     mouse.setNeedState(5)
+
+
                 
 
         #if need state = Drink
@@ -286,6 +299,9 @@ class Environment(arcade.Sprite):
                 else:
                     mouse.setStateClock(time.clock())
                     self.ponderPassage(mouse)
+                    if mouse.getMateCount() < 3 and time.clock() - mouse.getBirthTime() > 5:
+                        mouse.mateCountPlusPlus()
+                        mouse.prepareToMate = True
                     mouse.setNeedState(5)
 
     
@@ -296,11 +312,12 @@ class Environment(arcade.Sprite):
             potentialMate = [mouse, 10000000]
             for m in self.population.getMice():
                 d = self.distance(mouse.getCoords(), m.getCoords())
-                if d < potentialMate[1]: # and potentialMate[0].getNeedState() == 3:
+                if d < potentialMate[1] and potentialMate[1] != mouse: # and d > H/5: # and potentialMate[0].getNeedState() == 3:
                     potentialMate[0] = m
                     potentialMate[1] = d
             if self.distance(mouse.getCoords(), [potentialMate[0].getCoords()[0], potentialMate[0].getCoords()[1]]) < H/120:
                 self.population.reproduce(self.population.getIndex(mouse), self.population.getIndex(potentialMate[0]), random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13]))
+
                 potentialMate[0].setNeedState(1)
                 mouse.setNeedState(2)
                 
@@ -317,12 +334,15 @@ class Environment(arcade.Sprite):
 
         #if need state = wander
         elif mouse.getNeedState() == 5:
-            if time.clock() - mouse.getStateClock() > 30: 
+            if time.clock() - mouse.getStateClock() > 30 and mouse.prepareToMate == False: 
                 mouse.setStateClock(time.clock())
                 if self.isInsideCheeseRoom(mouse):
                     mouse.setNeedState(2)
                 else:
                     mouse.setNeedState(1)
+            elif time.clock() - mouse.getStateClock() > 5 and mouse.prepareToMate == True:
+                mouse.prepareToMate = False
+                mouse.setNeedState(3) 
             else:
                 self.wander(mouse, speed)
 

@@ -1,7 +1,4 @@
-#Alex Lewandowski
-#An Othello Clone
-#2/09/19
-#CS405 Homework 1
+
 
 import cProfile
 import re
@@ -32,10 +29,10 @@ class MyGame(arcade.Window):
 
         # Make the mouse disappear when it is over the window.
         # So we just see our object, not the pointer.
-        self.set_mouse_visible(False)
+        self.set_mouse_visible(False) 
 
         arcade.set_background_color(arcade.color.LIGHT_GRAY) 
-        self.board = Board() # an 8x8 board
+        self.board = Board() 
         self.environment = Environment()
         
    
@@ -66,6 +63,8 @@ class MyGame(arcade.Window):
 def main():
    # f = open("data.txt", "w+")
     #f.write("") 
+   
+    
     window = MyGame(W, H, TITLE)
     arcade.run()
    
