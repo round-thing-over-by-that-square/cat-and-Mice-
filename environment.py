@@ -14,8 +14,8 @@ from board import W
 from board import H
 from needs import Need
 import copy
-
-DEATH_AGE = 200
+from population import DEATH_AGE
+#DEATH_AGE = 200
 
 class Environment(arcade.Sprite):
     def __init__(self):
@@ -43,6 +43,7 @@ class Environment(arcade.Sprite):
         for mouse in self.population.getMice():
             self.mouseMove(mouse) ###################################
             mouse.draw()
+        self.catMove()
         self.cat.draw()
 
     def getObstacles(self):
@@ -70,11 +71,6 @@ class Environment(arcade.Sprite):
         b = abs(object1Coords[1]-object2Coords[1])
         return math.sqrt(a*a + b*b)
         
-    def eatMouse(self, mouse):
-        self.population.getMice().remove(mouse)
-
-    def catMove(self):
-        x = "dummy"
 
     #moves mouse or cat towards current need by a distance related to it s speed 
     def move(self, coord, mouseOrCat, speed):
@@ -143,6 +139,13 @@ class Environment(arcade.Sprite):
         else:
             return False
 
+    def isInsideCatRoom(self, mouseOrCat):
+        if not self.isInsideCheeseRoom(mouseOrCat) and not self.isInsideWaterRoom(mouseOrCat): # and mouseOrCat.getCoords()[1] > H/20 and ((mouseOrCat.getCoords()[0] < float(int(W - (W/5) - (H/30))) and mouseOrCat.getCoords()[1] < float(int(H - (H/2) - (H/20)))) or (mouseOrCat.getCoords()[0] < (float(int(W - (W/5))) and (mouseOrCat.getCoords()[1] >= float(int(H - (H/2) - (H/20))))))):
+            return True
+        else:
+            return False
+    
+
     
 
     def ponderPassage(self, mouse):
@@ -193,8 +196,34 @@ class Environment(arcade.Sprite):
             else:
                 mouse.setWanderDestination([-1, -1], 'x')
 
-  #  def catMove(self):
-   #     for mouse in self.population 
+     #Cat move utility function
+    def targetMouse(self): #still needs to factor in smell type and strength and ignore out of sight mice
+        target = [self.population.getMice()[0], 10000000]
+        for mouse in self.population.getMice():
+            distance = self.distance(self.cat.getCoords(), mouse.getCoords())
+            distance = self.adjustDistForSmell(distance, mouse)
+            if  distance < target[1] and self.isInsideCatRoom(mouse):
+                target[0] = mouse
+                target[1] = distance
+        if target[1] != 10000000:
+            return target[0]
+        else:
+            return 0
+
+    def catMove(self):
+        target = self.cat.getTarget()
+        if type(target) == int or not self.isInsideCatRoom(target):
+            target = self.targetMouse()
+            self.cat.setTarget(target)
+        if type(target) != int:
+            self.move(target.getCoords(), self.cat, 6)
+
+            if self.distance(self.cat.getCoords(), target.getCoords()) < H/10:
+                self.cat.setTarget(0)
+                self.population.killMouse(target)
+        
+
+        
             
     ################################################################################################################################
     ################################################################################################################################
@@ -208,13 +237,13 @@ class Environment(arcade.Sprite):
 
         #Apply speed gene gene  
         if mouse.getSpeed() == "00":
-            speed = 2 #1 #.5
+            speed = 5 #1 #.5
         if mouse.getSpeed() == "01":
-            speed = 4 #2 #1
+            speed = 10 #2 #1
         if mouse.getSpeed() == "10":
-            speed = 8 #4 #2
+            speed = 15 #4 #2
         if mouse.getSpeed() == "11":
-            speed = 12 #8 #5
+            speed = 20 #8 #5
 
         #Apply metabolic rate gene
         if mouse.getMetabolicRate() == "00":
@@ -229,13 +258,13 @@ class Environment(arcade.Sprite):
 
         #Apply catFear gene
         if mouse.getCatFear() == "00":
-            fearDistance = H/30
-        if mouse.getCatFear() == "01":
-            fearDistance = H/20
-        if mouse.getCatFear() == "10":
             fearDistance = H/10
-        if mouse.getCatFear() == "11":
+        if mouse.getCatFear() == "01":
+            fearDistance = H/7
+        if mouse.getCatFear() == "10":
             fearDistance = H/5
+        if mouse.getCatFear() == "11":
+            fearDistance = H/3
 
         # Mouse dies of old age
         if time.clock() - mouse.getBirthTime() > DEATH_AGE:
@@ -323,7 +352,7 @@ class Environment(arcade.Sprite):
             potentialMate = [mouse, 10000000]
             for m in self.population.getMice():
                 d = self.distance(mouse.getCoords(), m.getCoords())
-                if d < potentialMate[1] and potentialMate[0].getChromosome() != mouse.getChromosome() and potentialMate[0].getNeedState() == 3:
+                if d < potentialMate[1] and potentialMate[0].getChromosome() != mouse.getChromosome() and potentialMate[0] != mouse and  potentialMate[0].getNeedState() == 3:
                     potentialMate[0] = m
                     potentialMate[1] = d
             if self.distance(mouse.getCoords(), [potentialMate[0].getCoords()[0], potentialMate[0].getCoords()[1]]) < H/120:
@@ -488,13 +517,4 @@ class Environment(arcade.Sprite):
     def flee(self, mouse, cat):
         return "dummy coord"
 
-    #Cat move utility function
-    def targetMouse(self): #still needs to factor in smell type and strength and ignore out of sight mice
-        target = [-1, 1000000]
-        for mouse in self.population.getMice():
-            distance = self.distance(self.cat.getCoords(), mouse.getCoords())
-            distance = self.adjustDistForSmell(distance, mouse)
-            if  distance < target[1]:
-                target[0] = mouse
-                target[1] = distance
-        return target[0]
+   

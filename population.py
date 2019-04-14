@@ -5,6 +5,7 @@
 import random
 from mouse import Mouse
 
+DEATH_AGE = 200
 POP_SIZE = 100
 
 class Population:
@@ -18,10 +19,10 @@ class Population:
     def closeDataFile(self):
         self.data.close()
 
-    # Create an initial population of mice w random genotypes
+    # Create an initial population of mice w random genotypes, states, and ages
     def generate(self):
         for i in range (0, POP_SIZE):
-            self.mice.append(Mouse(self.data, random.randrange(1, 100, 1)))
+            self.mice.append(Mouse(self.data, random.randrange(1, DEATH_AGE, 1)))
     
     # Reproduce and add offspring to self.mice
     def reproduce(self, mouse1Index, mouse2Index, crossoverPt):

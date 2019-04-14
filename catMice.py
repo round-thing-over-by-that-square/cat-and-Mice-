@@ -59,8 +59,8 @@ class MyGame(arcade.Window):
             arcade.draw_circle_filled(safeCoords2[i][0], safeCoords2[i][1], float(int(W/500)), arcade.color.BLUE)
         
         #move cat for testing
-        if self.environment.cat.getCoords()[1] > H/20 + (W/50):
-            self.environment.cat.move(0, -3)
+        #if self.environment.cat.getCoords()[1] > H/20 + (W/50):
+        #    self.environment.cat.move(0, -3)
 
         
     
