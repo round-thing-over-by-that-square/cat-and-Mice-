@@ -11,24 +11,24 @@ TRAITS = ["00", "01", "10", "11"]
 
 class Mouse(arcade.Sprite):
 
-    def __init__(self, data):
+    def __init__(self, data, age):
         self.age = 0
         self.time = 0
         cheeseRoom = [random.randrange(W/10, W/5), random.randrange(0, H)]
         waterRoom = [random.randrange(W-(W/5), W-(W/10)), random.randrange(0, H)]
         self.coords = random.choice([cheeseRoom, waterRoom])
         self.spriteList = arcade.SpriteList()
-        self.birthTime = time.clock()
+        self.birthTime = time.clock() - age
         self.wanderDestination = [[-1, -1], 'x']
         self.takePassage = False
         self.mateCount = 0
         self.prepareToMate = False
 
         # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee, 5 = wander, 6 = passage
-        self.needState = random.choice([1,2])
+        self.needState = random.choice([1,2,5])
         self.previousNeedState = -1
 
-        self.stateClock = time.clock()
+        self.stateClock = time.clock() + random.choice([0, 5, 10, 15])
 
         #self.chromosome = strength + smellType + speed + metabolicRate + size + smallSpacePrefLevel + catFear
         self.chromosome = random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS)

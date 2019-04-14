@@ -5,7 +5,7 @@
 import random
 from mouse import Mouse
 
-POP_SIZE = 50
+POP_SIZE = 100
 
 class Population:
     def __init__(self):
@@ -21,7 +21,7 @@ class Population:
     # Create an initial population of mice w random genotypes
     def generate(self):
         for i in range (0, POP_SIZE):
-            self.mice.append(Mouse(self.data))
+            self.mice.append(Mouse(self.data, random.randrange(1, 100, 1)))
     
     # Reproduce and add offspring to self.mice
     def reproduce(self, mouse1Index, mouse2Index, crossoverPt):
@@ -35,8 +35,8 @@ class Population:
             childChrom2 = childChrom2 + self.mice[mouse1Index].getChromosome()[x]
         childChrom1 = self.mutate(childChrom1)
         childChrom2 = self.mutate(childChrom2)
-        child1 = Mouse(self.data)
-        child2 = Mouse(self.data)
+        child1 = Mouse(self.data, 0)
+        child2 = Mouse(self.data, 0)
         child1.setCoords(self.mice[mouse1Index].getCoords())
         child2.setCoords(self.mice[mouse1Index].getCoords())
         child1.setChromosome(childChrom1)

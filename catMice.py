@@ -6,6 +6,7 @@ import re
 import arcade
 import time
 import copy
+import random
 
 from board import Board
 from board import W
@@ -34,11 +35,16 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.LIGHT_GRAY) 
         self.board = Board() 
         self.environment = Environment()
-        
+        self.drawCount = 0
    
    
     def on_draw(self):
         arcade.start_render()
+        if self.drawCount == 120:
+            random.shuffle(self.environment.population.mice) #shuffle order of mice to prevent too much in-breeding
+            self.drawCount = 0
+        else:
+            self.drawCount = self.drawCount + 1
         self.board.draw()
         self.environment.draw()
         self.environment.setSafeZones(self.environment.getObstacles(), self.environment.getCat())
