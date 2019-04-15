@@ -32,7 +32,7 @@ class MyGame(arcade.Window):
         # So we just see our object, not the pointer.
         self.set_mouse_visible(False) 
 
-        arcade.set_background_color(arcade.color.LIGHT_GRAY) 
+        arcade.set_background_color(arcade.color.BLACK) #LIGHT_GRAY) 
         self.board = Board() 
         self.environment = Environment()
         self.drawCount = 0

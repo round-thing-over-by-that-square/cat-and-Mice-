@@ -14,6 +14,15 @@ class Cat:
         self.time = 0
         self.coords = [float(int(W/2)), float(int(H - H/5))]
         self.target = 0
+        self.sprite = arcade.Sprite("images/cat.png", .2)
+        self.wanderDestination = [[-1, -1], 'x']
+
+    
+    def setWanderDestination(self, coords, direction):
+        self.wanderDestination = [coords, direction]
+
+    def getWanderDestination(self):
+        return self.wanderDestination
 
     def getCoords(self):
         return self.coords
@@ -28,7 +37,10 @@ class Cat:
         return self.target
 
     def draw(self):
-        arcade.draw_circle_filled(self.coords[0], self.coords[1], float(int(W/50)), arcade.color.RED_DEVIL)
+        self.sprite.center_x = self.coords[0]
+        self.sprite.center_y = self.coords[1]
+        self.sprite.draw()
+        #arcade.draw_circle_filled(self.coords[0], self.coords[1], float(int(W/50)), arcade.color.RED_DEVIL)
     
     def move(self, xDist, yDist):
         self.coords[0] = self.coords[0] + xDist

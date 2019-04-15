@@ -10,7 +10,7 @@ import arcade
 W = 1500
 H = int(W * 0.48)
 
-BLACK = arcade.color.BLACK
+BLACK = arcade.color.BRIGHT_LAVENDER #arcade.color.BLACK
 WHITE = arcade.color.WHITE 
 
 
