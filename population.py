@@ -6,7 +6,7 @@ import random
 from mouse import Mouse
 
 DEATH_AGE = 200
-POP_SIZE = 100
+POP_SIZE = 2
 
 class Population:
     def __init__(self):
@@ -59,7 +59,8 @@ class Population:
         return chromosome
 
     def killMouse(self, mouse):
-        self.mice.remove(mouse)
+        if mouse in self.mice:
+            self.mice.remove(mouse)
 
     def getIndex(self, mouse):
         for i in range (0, len(self.mice)):

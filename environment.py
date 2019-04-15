@@ -10,6 +10,7 @@ from random import uniform
 from obstacle import Obstacle
 from population import Population
 from cat import Cat
+from mouse import Mouse
 from board import W
 from board import H
 from needs import Need
@@ -22,7 +23,9 @@ class Environment(arcade.Sprite):
         self.population = Population()
         self.population.generate()
         self.cat = Cat()
-        self.obstacles = [[Obstacle(float(int(W/15)), [float(int(W-(W/3))), float(int(H/4))])], [Obstacle(float(int(W/25)), [float(int(W/3)), float(int(H/3))])]]
+        objSprite1 = arcade.Sprite("images/obstacle_orange.png", 0.7)
+        objSprite2 = arcade.Sprite("images/obstacle_teal.png", 0.5)
+        self.obstacles = [Obstacle(objSprite1, [float(int(W-(W/3))), float(int(H/2))], H/9.25), Obstacle(objSprite2, [float(int(W/3)), float(int(H/2))], H/12)]
         self.allSafeZones = 0
         cheeseSprite = arcade.Sprite("images/cheese.png", 1)
         waterSprite = arcade.Sprite("images/water.png", 1)
@@ -37,7 +40,7 @@ class Environment(arcade.Sprite):
     
     def draw(self):
         for obstacle in self.obstacles:
-            obstacle[0].draw()
+            obstacle.draw()
         self.waterList.draw()
         self.cheeseList.draw()
         for mouse in self.population.getMice():
@@ -71,13 +74,31 @@ class Environment(arcade.Sprite):
         b = abs(object1Coords[1]-object2Coords[1])
         return math.sqrt(a*a + b*b)
         
+ #   def move(self, coord, mouseOrCat, speed):
+ #       #prevent divide by zero
+ #       deltaX = (coord[0]-mouseOrCat.getCoords()[0])
+ #       if deltaX == 0:
+ #           deltaX = 99999999
+ #       d = 1 * speed
+ #       if self.distance(mouseOrCat.getCoords(), coord) <= d:
+ #           #move to need coords
+ #           mouseOrCat.setCoords([coord[0], coord[1]])
+ #       midCoord = [coord[0], coord[1]]
+ #       while self.distance(midCoord, mouseOrCat.getCoords()) >= d + 1.5:
+ #           x = (mouseOrCat.getCoords()[0] + midCoord[0]) / 2
+ #           y = (mouseOrCat.getCoords()[1] + midCoord[1]) / 2
+ #           midCoord = [x, y]
+ #       mouseOrCat.setCoords(midCoord)
+        
+
 
     #moves mouse or cat towards current need by a distance related to it s speed 
     def move(self, coord, mouseOrCat, speed):
+
         #prevent divide by zero
         deltaX = (coord[0]-mouseOrCat.getCoords()[0])
         if deltaX == 0:
-            deltaX = 0.00000000001
+            deltaX = 99999999
         d = 1 * speed
 
         if self.distance(mouseOrCat.getCoords(), coord) <= d:
@@ -88,7 +109,13 @@ class Environment(arcade.Sprite):
             x = (mouseOrCat.getCoords()[0] + midCoord[0]) / 2
             y = (mouseOrCat.getCoords()[1] + midCoord[1]) / 2
             midCoord = [x, y]
-        mouseOrCat.setCoords(midCoord)
+        obstacle = self.isInObstacle(midCoord, type(mouseOrCat))
+        if type(obstacle) == Obstacle:
+            mouseOrCat.setCoords(midCoord)
+            
+            #mouseOrCat.setCoords(self.getAvoidObstacleCoords(mouseOrCat, obstacle))
+        else:
+            mouseOrCat.setCoords(midCoord)
         
 
     def findNearestCheeseDoor(self, mouse):
@@ -202,9 +229,12 @@ class Environment(arcade.Sprite):
         for mouse in self.population.getMice():
             distance = self.distance(self.cat.getCoords(), mouse.getCoords())
             distance = self.adjustDistForSmell(distance, mouse)
-            if  distance < target[1] and self.isInsideCatRoom(mouse):
-                target[0] = mouse
-                target[1] = distance
+            for obstacle in self.obstacles:
+                if self.isBetween(mouse.getCoords(), self.cat.getCoords(), obstacle):
+                    if  distance < target[1] and self.isInsideCatRoom(mouse):
+                        target[0] = mouse
+                        target[1] = distance
+                        break
         if target[1] != 10000000:
             return target[0]
         else:
@@ -231,11 +261,106 @@ class Environment(arcade.Sprite):
             self.move(destination1, self.cat, 1)
         else:
             if self.distance(self.cat.getWanderDestination()[0], self.cat.getCoords()) > H/80:
-                self.move(self.cat.getWanderDestination()[0], self.cat, 1)
+                self.move(self.cat.getWanderDestination()[0], self.cat, 4)
             else:
                 self.cat.setWanderDestination([-1, -1], 'x')
 
+    
+
+    #################################################################################################
+    ## Obstacle and Hidden Zone Utility Functions
+    #################################################################################################
+
+    def isInObstacle(self, coords, type):
+        for obstacle in self.obstacles:
+            if type == Cat:
+                if self.distance(obstacle.getCoords(), coords) < obstacle.getRadius() + H/15:
+                    return obstacle
+            elif type == Mouse:
+                if self.distance(obstacle.getCoords(), coords) < obstacle.getRadius() + H/40:
+                    return obstacle
+            else:
+                return 0
+
+    def getAvoidObstacleCoords(self, object, obstacle):
+        if object.getCoords()[0] - obstacle.getCoords()[0] == 0:
+            m = 999999
+        else:
+            m = (object.getCoords()[1] - obstacle.getCoords()[1]) / (object.getCoords()[0] - obstacle.getCoords()[0])
+        x = object.getCoords()[0]
+        y = object.getCoords()[1]
+        b = object.getCoords()[1] - (m * x)
         
+        m = -1 / m
+        if m <= 0.5 and m <= 1.5:
+            x = x + (obstacle.getRadius() * 0.6)
+            y = m * x + b
+        elif m > 1.5:
+            y = y + obstacle.getRadius()
+            x = (y - b) / m
+        elif m < 0.5 and m >= 0:
+            x = x + obstacle.getRadius()
+            y = m * x + b
+        elif m < 0 and m >= -0.5:
+            x = x + (obstacle.getRadius() * 0.6)
+            y = m * x + b
+        elif m < -0.5 and m >= -1.5:
+            y = y - obstacle.getRadius()
+            x = (y - b) / m
+        elif m < 1.5:
+            x = x + obstacle.getRadius()
+            y = m * x + b
+
+        return [x,y]
+    
+
+
+     #is the object between the two coordinated
+    def isBetween(self, coords1, coords2, object):
+        verticies = []
+        if ((coords1[0] - coords2[0])) == 0:
+            m = 999999
+        else:
+            m = (coords1[1] - coords2[1])/(coords1[0] - coords2[0])
+        x = coords2[0]
+        y = coords2[1]
+        b = coords2[1] - (m * x)
+
+        #Handle undefined slopes
+        vertY = int(coords2[1])
+        if coords1[1] > coords2[1] and m == .00000001:
+            for i in range (0, int(coords2[1])):
+                if i%10 == 0:
+                    vertY = vertY - 10
+                    if vertY > H/40 and vertY < H and x < W - (W/5) - (H/40) and x > W/5:
+                        verticies.append([x,vertY])
+        elif coords1[1] < coords2[1] and m == .00000001:
+            for i in range (0, int(H - coords2[1])):
+                if i%10 == 0:
+                    vertY = vertY + 10
+                    if vertY > H/40 and vertY < H and x < W - (W/5) - (H/40) and x > W/5:
+                        verticies.append([x,vertY])
+
+        #Handle defined slopes
+        else:
+            for i in range (0, 100):
+                y = ((m * x) + b) 
+                if y > H/20 and y < H and x < W - (W/5) - (H/20) and x > W/5:
+                    verticies.append([x,y])
+                if coords1[1] > coords2[1]:
+                    if m < 0:
+                        x = x + 10
+                    else:
+                        x = x - 10
+                else:
+                    if m > 0:
+                        x = x + 10
+                    else:
+                        x = x - 10
+        for vertexCoords in verticies:
+            if self.distance(vertexCoords, self.cat.getCoords()) < object.getRadius():
+                return True
+        return False
 
         
             
@@ -367,22 +492,23 @@ class Environment(arcade.Sprite):
         elif mouse.getNeedState() == 3:
             
             mouse.setStateClock(time.clock())
-            potentialMate = [mouse, 10000000]
-            for m in self.population.getMice():
-                d = self.distance(mouse.getCoords(), m.getCoords())
-                if d < potentialMate[1] and potentialMate[0].getChromosome() != mouse.getChromosome() and potentialMate[0] != mouse and  potentialMate[0].getNeedState() == 3:
-                    potentialMate[0] = m
-                    potentialMate[1] = d
-            if self.distance(mouse.getCoords(), [potentialMate[0].getCoords()[0], potentialMate[0].getCoords()[1]]) < H/120:
-                self.population.reproduce(self.population.getIndex(mouse), self.population.getIndex(potentialMate[0]), random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13]))
-                mouse.mateCountPlusPlus()
-                potentialMate[0].setStateClock(time.clock())
-                potentialMate[0].setNeedState(1)
-                mouse.setStateClock(time.clock())
-                mouse.setNeedState(2)
-                
-            elif time.clock() - mouse.getStateClock() < 5:
-                self.move(potentialMate[0].getCoords(), mouse, speed)
+            if len(self.population.getMice()) > 1:
+                potentialMate = [mouse, 10000000]
+                for m in self.population.getMice():
+                    d = self.distance(mouse.getCoords(), m.getCoords())
+                    if d < potentialMate[1] and potentialMate[0].getChromosome() != mouse.getChromosome() and potentialMate[0] != mouse and  potentialMate[0].getNeedState() == 3:
+                        potentialMate[0] = m
+                        potentialMate[1] = d
+                if self.distance(mouse.getCoords(), [potentialMate[0].getCoords()[0], potentialMate[0].getCoords()[1]]) < H/120:
+                    self.population.reproduce(self.population.getIndex(mouse), self.population.getIndex(potentialMate[0]), random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13]))
+                    mouse.mateCountPlusPlus()
+                    potentialMate[0].setStateClock(time.clock())
+                    potentialMate[0].setNeedState(1)
+                    mouse.setStateClock(time.clock())
+                    mouse.setNeedState(2)
+                    
+                elif time.clock() - mouse.getStateClock() < 5:
+                    self.move(potentialMate[0].getCoords(), mouse, speed)
             else:
                 mouse.setNeedState(5)
         
@@ -449,56 +575,9 @@ class Environment(arcade.Sprite):
             self.move(mouse.getWanderDestination()[0], mouse, speed)
 
 
-    #################################################################################################################################
-    #################################################################################################################################         
-
-    def isBetween(self, coords1, coords2, object):
-        verticies = []
-        if ((coords1[0] - coords2[0])) == 0:
-            m = .00000001
-        else:
-            m = (coords1[1] - coords2[1])/(coords1[0] - coords2[0])
-        x = coords2[0]
-        y = coords2[1]
-        b = coords2[1] - (m * x)
-
-        #Handle undefined slopes
-        vertY = int(coords2[1])
-        if coords1[1] > coords2[1] and m == .00000001:
-            for i in range (0, int(coords2[1])):
-                if i%10 == 0:
-                    vertY = vertY - 10
-                    if vertY > H/40 and vertY < H and x < W - (W/5) - (H/40) and x > W/5:
-                        verticies.append([x,vertY])
-        elif coords1[1] < coords2[1] and m == .00000001:
-            for i in range (0, int(H - coords2[1])):
-                if i%10 == 0:
-                    vertY = vertY + 10
-                    if vertY > H/40 and vertY < H and x < W - (W/5) - (H/40) and x > W/5:
-                        verticies.append([x,vertY])
-
-        #Handle defined slopes
-        else:
-            for i in range (0, 100):
-                y = ((m * x) + b) 
-                if y > H/20 and y < H and x < W - (W/5) - (H/20) and x > W/5:
-                    verticies.append([x,y])
-                if coords1[1] > coords2[1]:
-                    if m < 0:
-                        x = x + 10
-                    else:
-                        x = x - 10
-                else:
-                    if m > 0:
-                        x = x + 10
-                    else:
-                        x = x - 10
-        for vertexCoords in verticies:
-            if self.distance(vertexCoords, self.cat.getCoords()) < H / 10:
-                return True
-        return False
-
-    #Mouse Move Utility Functions
+    ################################################################################################################################# #Mouse Move Utility Functions
+    ###############################################################################################################################         
+   
     def getFleeCoord(self, mouse):
         fleecoords = [[float(int(W/5)-(H/40)), float(int(H - H/40))], [float(int(W/5)-(H/40)), float(int(H - (H/2) - (H/40)))], [float(int((W - (W/5))+(H/40))), (float(int(H - H/40)))], [float(int(W - (W/5)+(H/40))), float(int(H - (H/2) - (H/40)))]]
         minDist = [0, 1000000]
@@ -512,7 +591,7 @@ class Environment(arcade.Sprite):
     def setSafeZones(self, obstacles, cat):
         allSafeCoords = []
         for obstacle in obstacles:
-            safeCoords = self.mapSafeZone(obstacle[0], cat)
+            safeCoords = self.mapSafeZone(obstacle, cat)
             for coord in safeCoords:
                 allSafeCoords.append(coord)
         self.allSafeZones = allSafeCoords

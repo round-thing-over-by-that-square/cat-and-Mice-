@@ -23,6 +23,7 @@ class Mouse(arcade.Sprite):
         self.takePassage = False
         self.mateCount = 0
         self.prepareToMate = False
+        self.radius = H/30
 
         # 1 = eat, 2 = drink, 3 = reproduce, 4 = flee, 5 = wander, 6 = passage
         self.needState = random.choice([1,2,5])
@@ -36,6 +37,8 @@ class Mouse(arcade.Sprite):
         
         data.write(self.chromosome + "\n")
         
+    def getRadius(self):
+        return self.radius
 
     def getMateCount(self):
         return self.mateCount
