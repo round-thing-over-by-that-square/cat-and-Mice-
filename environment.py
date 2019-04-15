@@ -492,23 +492,22 @@ class Environment(arcade.Sprite):
         elif mouse.getNeedState() == 3:
             
             mouse.setStateClock(time.clock())
-            if len(self.population.getMice()) > 1:
-                potentialMate = [mouse, 10000000]
-                for m in self.population.getMice():
-                    d = self.distance(mouse.getCoords(), m.getCoords())
-                    if d < potentialMate[1] and potentialMate[0].getChromosome() != mouse.getChromosome() and potentialMate[0] != mouse and  potentialMate[0].getNeedState() == 3:
-                        potentialMate[0] = m
-                        potentialMate[1] = d
-                if self.distance(mouse.getCoords(), [potentialMate[0].getCoords()[0], potentialMate[0].getCoords()[1]]) < H/120:
-                    self.population.reproduce(self.population.getIndex(mouse), self.population.getIndex(potentialMate[0]), random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13]))
-                    mouse.mateCountPlusPlus()
-                    potentialMate[0].setStateClock(time.clock())
-                    potentialMate[0].setNeedState(1)
-                    mouse.setStateClock(time.clock())
-                    mouse.setNeedState(2)
-                    
-                elif time.clock() - mouse.getStateClock() < 5:
-                    self.move(potentialMate[0].getCoords(), mouse, speed)
+            potentialMate = [mouse, 10000000]
+            for m in self.population.getMice():
+                d = self.distance(mouse.getCoords(), m.getCoords())
+                if d < potentialMate[1] and potentialMate[0].getChromosome() != mouse.getChromosome() and potentialMate[0] != mouse and  potentialMate[0].getNeedState() == 3:
+                    potentialMate[0] = m
+                    potentialMate[1] = d
+            if self.distance(mouse.getCoords(), [potentialMate[0].getCoords()[0], potentialMate[0].getCoords()[1]]) < H/120:
+                self.population.reproduce(self.population.getIndex(mouse), self.population.getIndex(potentialMate[0]), random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13]))
+                mouse.mateCountPlusPlus()
+                potentialMate[0].setStateClock(time.clock())
+                potentialMate[0].setNeedState(1)
+                mouse.setStateClock(time.clock())
+                mouse.setNeedState(2)
+                
+            elif time.clock() - mouse.getStateClock() < 5:
+                self.move(potentialMate[0].getCoords(), mouse, speed)
             else:
                 mouse.setNeedState(5)
         
