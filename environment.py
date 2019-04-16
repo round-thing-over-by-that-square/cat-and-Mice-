@@ -20,6 +20,7 @@ from population import DEATH_AGE
 
 class Environment(arcade.Sprite):
     def __init__(self):
+        self.survivor = open("survivorData.txt", "a+")
         self.population = Population()
         self.population.generate()
         self.cat = Cat()
@@ -55,18 +56,14 @@ class Environment(arcade.Sprite):
     def getCat(self):
         return self.cat
 
-    def getStringBin(self, stringBin):
-        num = 0
-        for char in (0, len(stringBin)):
-            num = num + (2**char)
-        return num
-
     #Apply smell type and strength gene heuristics
     def adjustDistForSmell(self, distance, mouse):
         smellType = mouse.getSmellType()
         smellStrength = mouse.getSmellStrength()
-        distance = distance - ((distance * self.getStringBin(smellType)) / 25)
-        return distance - ((distance * self.getStringBin(smellStrength)) / 15)
+        test1 = int(smellType, 2)
+        test2 = int(smellStrength, 2)
+        distance = distance - ((distance * int(smellType, 2)) / 25)
+        return distance - ((distance * int(smellStrength, 2)) / 15)
 
 
     def distance(self, object1Coords, object2Coords):
@@ -407,6 +404,9 @@ class Environment(arcade.Sprite):
 
         # Mouse dies of old age
         if time.clock() - mouse.getBirthTime() > DEATH_AGE and mouse.getNeedState() != 3:
+            c = mouse.getChromosome()
+            self.survivor.write(c[0]+c[1]+","+ c[2]+c[3]+","+ c[4]+c[5]+","+ c[6]+c[7]+","+ c[8]+c[9]+","+ c[10]+c[11]+","+ c[12]+c[13]+"\n")
+        
             self.population.killMouse(mouse)
 
         # Mouse gets eaten
