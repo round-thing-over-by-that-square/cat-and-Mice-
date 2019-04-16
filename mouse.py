@@ -30,12 +30,12 @@ class Mouse(arcade.Sprite):
         self.previousNeedState = -1
 
         self.stateClock = time.clock() + random.choice([0, 5, 10, 15])
-
-        #self.chromosome = strength + smellType + speed + metabolicRate + size + smallSpacePrefLevel + catFear
+                                
+        #self.chromosome = smellStrength + smellType + speed + metabolicRate + size + smallSpacePrefLevel + catFear
         self.chromosome = random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS) + random.choice(TRAITS)
 
-        
-        data.write(self.chromosome + "\n")
+        c = self.chromosome
+        data.write(c[0]+c[1]+","+ c[2]+c[3]+","+ c[4]+c[5]+","+ c[6]+c[7]+","+ c[8]+c[9]+","+ c[10]+c[11]+","+ c[12]+c[13]+"\n")
         
     def getRadius(self):
         return self.radius

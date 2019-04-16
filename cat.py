@@ -12,7 +12,7 @@ class Cat:
     def __init__(self):
         self.age = 0
         self.time = 0
-        self.coords = [float(int(W/2)), float(int(H - H/5))]
+        self.coords = [float(int(W/2)), float(int(H/10))]
         self.target = 0
         self.sprite = arcade.Sprite("images/cat.png", .2)
         self.wanderDestination = [[-1, -1], 'x']
