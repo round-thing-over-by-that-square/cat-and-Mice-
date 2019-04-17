@@ -16,7 +16,7 @@ class Cat:
         self.target = 0
         self.sprite = arcade.Sprite("images/cat.png", .2)
         self.wanderDestination = [[-1, -1], 'x']
-        self.radius = H/15
+        self.radius = H/5
 
     def getRadius(self):
         return self.radius

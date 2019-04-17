@@ -28,11 +28,9 @@ class MyGame(arcade.Window):
         # Call the parent class's init function
         super().__init__(width, height, title)
 
-        # Make the mouse disappear when it is over the window.
-        # So we just see our object, not the pointer.
         self.set_mouse_visible(False) 
 
-        arcade.set_background_color(arcade.color.BLACK) #LIGHT_GRAY) 
+        arcade.set_background_color(arcade.color.BLACK)  
         self.board = Board() 
         self.environment = Environment()
         self.drawCount = 0
