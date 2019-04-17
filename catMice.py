@@ -53,10 +53,10 @@ class MyGame(arcade.Window):
         safeCoords2 = self.environment.mapSafeZone(self.environment.getObstacles()[1], self.environment.getCat()) #debugging
         
         #add blue safe zone dots for testing
-        for i in range (0, len(safeCoords1)):
-            arcade.draw_circle_filled(safeCoords1[i][0], safeCoords1[i][1], float(int(W/500)), arcade.color.BLUE)
-        for i in range (0, len(safeCoords2)):
-            arcade.draw_circle_filled(safeCoords2[i][0], safeCoords2[i][1], float(int(W/500)), arcade.color.BLUE)
+       # for i in range (0, len(safeCoords1)):
+       #     arcade.draw_circle_filled(safeCoords1[i][0], safeCoords1[i][1], float(int(W/500)), arcade.color.BLUE)
+       # for i in range (0, len(safeCoords2)):
+       #     arcade.draw_circle_filled(safeCoords2[i][0], safeCoords2[i][1], float(int(W/500)), arcade.color.BLUE)
         
        
     

@@ -258,7 +258,7 @@ class Environment(arcade.Sprite):
             self.move(destination1, self.cat, 1)
         else:
             if self.distance(self.cat.getWanderDestination()[0], self.cat.getCoords()) > H/80:
-                self.move(self.cat.getWanderDestination()[0], self.cat, 4)
+                self.move(self.cat.getWanderDestination()[0], self.cat, 6)
             else:
                 self.cat.setWanderDestination([-1, -1], 'x')
 
@@ -408,10 +408,12 @@ class Environment(arcade.Sprite):
             self.survivor.write(c[0]+c[1]+","+ c[2]+c[3]+","+ c[4]+c[5]+","+ c[6]+c[7]+","+ c[8]+c[9]+","+ c[10]+c[11]+","+ c[12]+c[13]+"\n")
         
             self.population.killMouse(mouse)
+            return
 
         # Mouse gets eaten
         if self.distance(mouse.getCoords(), self.cat.getCoords()) < H/15:
               self.population.killMouse(mouse)
+              return
 
         #Trigger flee state if the cat is within mouse's fear distance
         if self.distance(mouse.getCoords(), self.cat.getCoords()) < fearDistance:
@@ -427,6 +429,7 @@ class Environment(arcade.Sprite):
             goNorth = [mouse.getCoords()[0], (H/3)]
             if time.clock() - mouse.getStateClock() > 35:
                 self.population.killMouse(mouse) #dies of starvation
+                return
             cheeseDoorCoord = self.findNearestCheeseDoor(mouse)
             waterDoorCoord = self.findNearestWaterDoor(mouse)
             if not self.isInsideCheeseRoom(mouse):
@@ -462,6 +465,7 @@ class Environment(arcade.Sprite):
         elif mouse.getNeedState() == 2:
             if time.clock() - mouse.getStateClock() > 35: 
                 self.population.killMouse(mouse) #dies of thirst 
+                return
             if not self.isInsideWaterRoom(mouse):
                 if mouse.getTakePassage() == -1:
                     #ponder taking the passage (if mouse is small enough)
@@ -547,7 +551,7 @@ class Environment(arcade.Sprite):
                     mouse.setNeedState(1)
             elif time.clock() - mouse.getStateClock() > 5 and mouse.prepareToMate == True:
                 mouse.prepareToMate = False
-                if len(self.population.mice) < 130: 
+                if len(self.population.mice) < 100: 
                     mouse.setNeedState(3)
                 else:
                     mouse.setStateClock(time.clock() + 5.1)

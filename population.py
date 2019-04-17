@@ -68,6 +68,7 @@ class Population:
     def killMouse(self, mouse):
         if mouse in self.mice:
             self.mice.remove(mouse)
+            del mouse
 
     def getIndex(self, mouse):
         for i in range (0, len(self.mice)):
