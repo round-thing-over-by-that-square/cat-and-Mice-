@@ -605,14 +605,14 @@ class Environment(arcade.Sprite):
    
     def getFleeCoord(self, mouse):
         fleecoords = [[float(int(W/5)-(H/10)), float(int(H/10))], [float(int(W/5)-(H/10)), float(int(H - H/40))], [float(int(W/5)-(H/10)), float(int(H - (H/2) - (H/40)))], [float(int((W - (W/5))+(H/10))), (float(int(H - H/40)))], [float(int(W - (W/5)+(H/10))), float(int(H - (H/2) - (H/40)))]]
-        minDist = [0, 1000000]
+        minDist = [[0,0], 1000000]
         for coord in fleecoords:
             d = self.distance(mouse.getCoords(), coord)
             if d < minDist[1] and not self.isBetween(mouse.getCoords(), coord, self.cat):
                 minDist[0] = coord
                 minDist[1] = d
-        if minDist[0] != 0:
-            if minDist[0][1] == float(int(H - H/40)) and self.cat.getCoords()[1] > H/2:
+        if minDist[0][0] != 0:
+            if minDist[0][1] < float(int(H/2 + H/10)) and minDist[0][1] > float(int(H/2 - H/10)) and self.cat.getCoords()[1] > H/2:
                 return fleecoords[0]
         return minDist[0]
 
