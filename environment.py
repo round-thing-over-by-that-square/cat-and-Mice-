@@ -26,7 +26,7 @@ class Environment(arcade.Sprite):
         self.cat = Cat()
         objSprite1 = arcade.Sprite("images/obstacle_orange.png", 0.7)
         objSprite2 = arcade.Sprite("images/obstacle_teal.png", 0.5)
-        self.obstacles = [Obstacle(objSprite1, [float(int(W-(W/3))), float(int(H - H/4))], H/9.25), Obstacle(objSprite2, [float(int(W/3)), float(int(H/25))], H/12)]
+        self.obstacles = [Obstacle(objSprite1, [float(int(W-(W/3))), float(int(H - H/4))], H/9.25), Obstacle(objSprite2, [float(int(W/3)), float(int(H/5))], H/20)]
         self.allSafeZones = 0
         cheeseSprite = arcade.Sprite("images/cheese.png", 1)
         waterSprite = arcade.Sprite("images/water.png", 1)
@@ -60,10 +60,8 @@ class Environment(arcade.Sprite):
     def adjustDistForSmell(self, distance, mouse):
         smellType = mouse.getSmellType()
         smellStrength = mouse.getSmellStrength()
-        test1 = int(smellType, 2)
-        test2 = int(smellStrength, 2)
-        distance = distance - ((distance * int(smellType, 2)) / 25)
-        return distance - ((distance * int(smellStrength, 2)) / 15)
+        distance = distance - ((distance * int(smellType, 2)) / 10)
+        return distance - ((distance * int(smellStrength, 2)) / 10)
 
 
     def distance(self, object1Coords, object2Coords):
@@ -71,23 +69,6 @@ class Environment(arcade.Sprite):
         b = abs(object1Coords[1]-object2Coords[1])
         return math.sqrt(a*a + b*b)
         
- #   def move(self, coord, mouseOrCat, speed):
- #       #prevent divide by zero
- #       deltaX = (coord[0]-mouseOrCat.getCoords()[0])
- #       if deltaX == 0:
- #           deltaX = 99999999
- #       d = 1 * speed
- #       if self.distance(mouseOrCat.getCoords(), coord) <= d:
- #           #move to need coords
- #           mouseOrCat.setCoords([coord[0], coord[1]])
- #       midCoord = [coord[0], coord[1]]
- #       while self.distance(midCoord, mouseOrCat.getCoords()) >= d + 1.5:
- #           x = (mouseOrCat.getCoords()[0] + midCoord[0]) / 2
- #           y = (mouseOrCat.getCoords()[1] + midCoord[1]) / 2
- #           midCoord = [x, y]
- #       mouseOrCat.setCoords(midCoord)
-        
-
 
     #moves mouse or cat towards current need by a distance related to it s speed 
     def move(self, coord, mouseOrCat, speed):
@@ -169,9 +150,6 @@ class Environment(arcade.Sprite):
         else:
             return False
     
-
-    
-
     def ponderPassage(self, mouse):
         if self.isInsideWaterRoom(mouse) or self.isInsideCheeseRoom(mouse):
             # smallest mouse: never take
@@ -243,12 +221,11 @@ class Environment(arcade.Sprite):
             target = self.targetMouse()
             self.cat.setTarget(target)
         if type(target) != int:
-            self.move(target.getCoords(), self.cat, 13)
+            self.move(target.getCoords(), self.cat, 9)
 
             if self.distance(self.cat.getCoords(), target.getCoords()) < H/10:
                 self.cat.setTarget(0)
         else:
-            #self.cat.setWanderDestination([-1, -1], 'x')
             self.catWander()
 
     def catWander(self):
@@ -394,11 +371,11 @@ class Environment(arcade.Sprite):
 
         #Apply catFear gene
         if mouse.getCatFear() == "00":
-            fearDistance = H/7
+            fearDistance = H/20
         if mouse.getCatFear() == "01":
-            fearDistance = H/5
+            fearDistance = H/12
         if mouse.getCatFear() == "10":
-            fearDistance = H/4
+            fearDistance = H/6
         if mouse.getCatFear() == "11":
             fearDistance = H/2.5
 
@@ -419,6 +396,9 @@ class Environment(arcade.Sprite):
         if self.distance(mouse.getCoords(), self.cat.getCoords()) < fearDistance:
             if self.isInsideCatRoom(mouse):
                 mouse.setNeedState(4)
+
+        if mouse.getCoords()[0] == W/5 or mouse.getCoords()[0] == W - W/5: ##########################################
+            mouse.setNeedState(4)
 
         #if need state = Eat   
         if mouse.getNeedState() == 1:
@@ -550,7 +530,7 @@ class Environment(arcade.Sprite):
                     mouse.setNeedState(1)
             elif time.clock() - mouse.getStateClock() > 5 and mouse.prepareToMate == True:
                 mouse.prepareToMate = False
-                if len(self.population.mice) < 100: 
+                if len(self.population.mice) < 99: 
                     mouse.setNeedState(3)
                 elif time.clock() - mouse.getStateClock() > 20:
                     if self.isInsideCheeseRoom(mouse):
@@ -571,7 +551,7 @@ class Environment(arcade.Sprite):
                 return
             coords = mouse.getCoords()
             passageEntranceWater = [W-(W/5)-(H/60), (H/2 - H/20)]
-            passageEntranceCheese = [W/5, H/40]
+            passageEntranceCheese = [(W/5) + 2, H/40]
             passageCorner = [W-(W/5)-(H/60), H/40]
             
             # if in water room
@@ -604,16 +584,24 @@ class Environment(arcade.Sprite):
     ###############################################################################################################################         
    
     def getFleeCoord(self, mouse):
-        fleecoords = [[float(int(W/5)-(H/10)), float(int(H/10))], [float(int(W/5)-(H/10)), float(int(H - H/40))], [float(int(W/5)-(H/10)), float(int(H - (H/2) - (H/40)))], [float(int((W - (W/5))+(H/10))), (float(int(H - H/40)))], [float(int(W - (W/5)+(H/10))), float(int(H - (H/2) - (H/40)))]]
-        minDist = [[0,0], 1000000]
+        fleecoords = [[float(int(W/5)-(H/40)), float(int(H/10))], [float(int(W/5)-(H/40)), float(int(H - H/40))], [float(int(W/5)-(H/40)), float(int(H - (H/2) - (H/40)))], [float(int((W - (W/5))+(H/40))), (float(int(H - H/40)))], [float(int(W - (W/5)+(H/40))), float(int(H - (H/2) - (H/40)))]]
+        minDist = [fleecoords[0], self.distance(mouse.getCoords(), fleecoords[0])]
         for coord in fleecoords:
             d = self.distance(mouse.getCoords(), coord)
-            if d < minDist[1] and not self.isBetween(mouse.getCoords(), coord, self.cat):
+            if self.isBetween(mouse.getCoords(), fleecoords[0], self.cat):
                 minDist[0] = coord
                 minDist[1] = d
-        if minDist[0][0] != 0:
-            if minDist[0][1] < float(int(H/2 + H/10)) and minDist[0][1] > float(int(H/2 - H/10)) and self.cat.getCoords()[1] > H/2:
-                return fleecoords[0]
+            elif d < minDist[1] and not self.isBetween(mouse.getCoords(), coord, self.cat):
+                minDist[0] = coord
+                minDist[1] = d
+            if minDist[0][1] < float(int(H/2 + H/10)) and minDist[0][1] > float(int(H/2 - H/5)):
+                if self.cat.getCoords()[1] > H/2 + H/10:
+                    return fleecoords[0]
+                elif self.cat.getCoords()[1] > H/2 - H/5:
+                    if self.distance(mouse.getCoords(), fleecoords[1]) < self.distance(mouse.getCoords(), fleecoords[3]):
+                        return fleecoords[1]
+                    else: 
+                        return fleecoords[3]
         return minDist[0]
 
    # def getFleeCoord(self, mouse):
